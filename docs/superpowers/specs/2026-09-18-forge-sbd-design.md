@@ -1,6 +1,6 @@
 # ForgeSBD — análise funcional e proposta inicial
 
-Data: 18/09/2026. Estado: proposta para revisão; implementação não iniciada.
+Data: 18/09/2026. Estado: desenho geral aprovado; implementação não iniciada. Revisão de escopo em 18/09/2026: equivalência funcional como objetivo final e Jira obrigatório para o primeiro piloto útil.
 
 ## 1. Objetivo e decisões confirmadas
 
@@ -43,7 +43,7 @@ As funcionalidades do SD Elements são referências de comportamento. A arquitet
 | Diagramas | Modelagem visual da arquitetura | Registro textual e referências na primeira versão; editor visual depois |
 | Devici | Importação de modelos e geração de controles; recurso dependente de habilitação | Possível importação futura, após definir formato e necessidade |
 | Reutilização | Componentes compartilham controles com consumidores | Controles herdados com escopo, versão e evidência em fase posterior |
-| Tickets | Sincronização de controles com ferramentas de trabalho | Conectores posteriores, priorizados conforme uso na VOLL |
+| Tickets | Sincronização de controles com ferramentas de trabalho | Jira obrigatório na fase F3, antes do piloto útil; demais conectores posteriores |
 | Scanners | Importação e mapeamento de achados para verificar controles | Conectores posteriores; não criar um scanner próprio na primeira versão |
 | CI/CD | Gates associados às políticas de segurança | Futuro endpoint de avaliação de política |
 | Repositórios | Extração de contexto para respostas e componentes | Automação futura com revisão humana |
@@ -101,7 +101,8 @@ Recomendação: um monólito modular com motor de regras e catálogos por domín
 7. Registrar execução, notas e referências de evidência.
 8. Verificar manualmente e registrar o resultado.
 9. Registrar exceções fundamentadas e sua validade.
-10. Consultar painel e exportar os requisitos em CSV.
+10. Publicar avaliação e gerar automaticamente cards Jira quando o destino estiver configurado; acompanhar envio e vínculos.
+11. Consultar painel e exportar os requisitos em CSV.
 
 ### Módulos
 
@@ -177,17 +178,24 @@ Relações essenciais: aplicação possui projetos; projeto possui avaliações;
 - Arquivos de configuração de exemplo sem dados internos.
 - Dados fictícios durante desenvolvimento pessoal; futura entrada de dados corporativos seguirá o ambiente autorizado pela VOLL.
 
-## 8. Divisão em entregas
+## 8. Divisão em entregas revisada
 
-| Entrega | Resultado verificável |
+O roadmap mestre em docs/roadmap/2026-09-18-forge-sbd-roadmap-master.md detalha os gates e dependências. Jira é obrigatório antes do primeiro piloto útil. As 24 perguntas e dez controles demo da entrega 1 são fundação técnica, não o escopo final.
+
+| Fase | Resultado |
 |---|---|
-| 1. Fluxo mínimo | Entrar, criar projeto, responder questionário pequeno e gerar requisitos explicados com um catálogo demonstrativo |
-| 2. Conteúdo e publicação | Editar rascunhos, validar regras e publicar catálogo inicial dos domínios acordados |
-| 3. Execução e verificação | Registrar andamento, evidências de referência, verificação manual e exceções |
-| 4. Evolução das avaliações | Comparar novo contexto ou catálogo e preservar histórico |
-| 5. Gestão e operação | Dashboard, CSV, backup/restauração e documentação de migração |
+| F0 | Referência, matriz de equivalência e continuidade |
+| F1 | Núcleo técnico com questionário e catálogo demonstrativos |
+| F2 | Questionário amplo e conteúdo real revisado para os sete domínios |
+| F3 | Jira obrigatório: publicação cria cards, vínculos e recuperação de falhas |
+| F4 | Execução, verificação, evidências, exceções, sincronização e evolução |
+| F5 | Governança, relatórios, acesso corporativo e operação/migração |
+| F6 | Diagramas, ameaças, importação e componentes reutilizáveis |
+| F7 | Scanners, CI/CD, descoberta por repositórios e automação |
+| F8 | Treinamento, assistência contextual e agentes/MCP |
+| F9 | Auditoria das lacunas de equivalência |
 
-Cada entrega terá especificação e plano próprios. O catálogo demonstrativo da entrega 1 não representa padrão corporativo aprovado. O piloto útil depende da revisão do catálogo inicial e da conclusão dos fluxos de execução e verificação.
+Cada fase será decomposta em especificações e planos executáveis. O roadmap registra escopo futuro; não representa planos técnicos completos das fases ainda não iniciadas.
 
 ## 9. Validação do produto
 
@@ -203,10 +211,10 @@ Cada entrega terá especificação e plano próprios. O catálogo demonstrativo 
 
 ## 10. Evolução posterior
 
-Equipes e papéis; SSO; releases com herança; dependências e visão de sistema; editor de diagramas; importação de modelos; componentes reutilizáveis; conectores de tickets e scanners; gates de CI/CD; extração de contexto de repositórios; tendências; automação; treinamentos; IA e MCP.
+Equipes e papéis; SSO; releases com herança; dependências e visão de sistema; editor de diagramas; importação de modelos; componentes reutilizáveis; demais conectores de tickets e scanners; gates de CI/CD; extração de contexto de repositórios; tendências; automação; treinamentos; IA e MCP.
 
 A ordem será revisada com o uso real. Integrações não devem aprovar controles automaticamente apenas por ausência de achados; a cobertura do método precisa ser explicitada.
 
 ## 11. Próxima decisão
 
-Revisar o núcleo proposto: monólito modular, catálogos por domínio, aplicabilidade explicável, avaliações versionadas e execução separada de verificação. Após validar o desenho, consolidar a especificação da primeira entrega e preparar seu plano de implementação. Nenhum framework, repositório remoto ou aplicação foi instalado/criado por este documento.
+Revisar o núcleo proposto: monólito modular, catálogos por domínio, aplicabilidade explicável, avaliações versionadas e execução separada de verificação. Após validar o desenho, executar o plano da fundação e detalhar o conteúdo amplo e o Jira obrigatório conforme o roadmap revisado. Nenhum framework, repositório remoto ou aplicação foi instalado/criado por este documento.
