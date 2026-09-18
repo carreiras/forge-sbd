@@ -2,6 +2,7 @@ name: forge-sbd
 services:
   postgres:
     image: postgres:17
+    container_name: forge-sbd-postgres
     ports:
       - "127.0.0.1:${POSTGRES_PORT:-5438}:5432"
     environment:
