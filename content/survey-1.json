@@ -1,0 +1,380 @@
+{
+  "version": "survey-1",
+  "questions": [
+    {
+      "id": "q01",
+      "section": "Contexto",
+      "label": "Ambiente do projeto",
+      "kind": "single",
+      "required": true,
+      "options": [
+        "dev",
+        "staging",
+        "prod"
+      ],
+      "optionLabels": {
+        "dev": "Desenvolvimento",
+        "staging": "Homologação",
+        "prod": "Produção"
+      }
+    },
+    {
+      "id": "q02",
+      "section": "Contexto",
+      "label": "Algum componente é exposto à internet?",
+      "kind": "boolean",
+      "required": true
+    },
+    {
+      "id": "q03",
+      "section": "Dados",
+      "label": "Trata dados pessoais?",
+      "kind": "boolean",
+      "required": true
+    },
+    {
+      "id": "q04",
+      "section": "Dados",
+      "label": "Trata dados sensíveis?",
+      "kind": "boolean",
+      "required": true
+    },
+    {
+      "id": "q05",
+      "section": "Dados",
+      "label": "Armazena dados persistentemente?",
+      "kind": "boolean",
+      "required": true
+    },
+    {
+      "id": "q06",
+      "section": "Identidade",
+      "label": "Usa autenticação de usuários?",
+      "kind": "boolean",
+      "required": true
+    },
+    {
+      "id": "q07",
+      "section": "Identidade",
+      "label": "Possui funções administrativas?",
+      "kind": "boolean",
+      "required": true
+    },
+    {
+      "id": "q08",
+      "section": "Arquitetura",
+      "label": "Integra com terceiros?",
+      "kind": "boolean",
+      "required": true
+    },
+    {
+      "id": "q09",
+      "section": "Desenvolvimento",
+      "label": "Linguagens utilizadas",
+      "kind": "multiple",
+      "required": true,
+      "options": [
+        "js_ts",
+        "java",
+        "csharp",
+        "python",
+        "go",
+        "other"
+      ],
+      "visibleWhen": {
+        "op": "any",
+        "args": [
+          {
+            "op": "fact",
+            "key": "domain.web"
+          },
+          {
+            "op": "fact",
+            "key": "domain.api"
+          },
+          {
+            "op": "fact",
+            "key": "domain.mobile"
+          },
+          {
+            "op": "fact",
+            "key": "domain.backend"
+          }
+        ]
+      },
+      "optionLabels": {
+        "js_ts": "JavaScript / TypeScript",
+        "java": "Java",
+        "csharp": "C#",
+        "python": "Python",
+        "go": "Go",
+        "other": "Outra"
+      }
+    },
+    {
+      "id": "q10",
+      "section": "Desenvolvimento",
+      "label": "Possui dependências de terceiros?",
+      "kind": "boolean",
+      "required": true,
+      "visibleWhen": {
+        "op": "any",
+        "args": [
+          {
+            "op": "fact",
+            "key": "domain.web"
+          },
+          {
+            "op": "fact",
+            "key": "domain.api"
+          },
+          {
+            "op": "fact",
+            "key": "domain.mobile"
+          },
+          {
+            "op": "fact",
+            "key": "domain.backend"
+          }
+        ]
+      }
+    },
+    {
+      "id": "q11",
+      "section": "Desenvolvimento",
+      "label": "Recebe upload de arquivos?",
+      "kind": "boolean",
+      "required": true,
+      "visibleWhen": {
+        "op": "any",
+        "args": [
+          {
+            "op": "fact",
+            "key": "domain.web"
+          },
+          {
+            "op": "fact",
+            "key": "domain.api"
+          },
+          {
+            "op": "fact",
+            "key": "domain.mobile"
+          },
+          {
+            "op": "fact",
+            "key": "domain.backend"
+          }
+        ]
+      }
+    },
+    {
+      "id": "q12",
+      "section": "Web",
+      "label": "Utiliza sessão de navegador por cookie?",
+      "kind": "boolean",
+      "required": true,
+      "visibleWhen": {
+        "op": "fact",
+        "key": "domain.web"
+      }
+    },
+    {
+      "id": "q13",
+      "section": "Web",
+      "label": "Renderiza conteúdo fornecido por usuários?",
+      "kind": "boolean",
+      "required": true,
+      "visibleWhen": {
+        "op": "fact",
+        "key": "domain.web"
+      }
+    },
+    {
+      "id": "q14",
+      "section": "API",
+      "label": "Permite acessar recursos pertencentes a usuários ou organizações?",
+      "kind": "boolean",
+      "required": true,
+      "visibleWhen": {
+        "op": "fact",
+        "key": "domain.api"
+      }
+    },
+    {
+      "id": "q15",
+      "section": "API",
+      "label": "Recebe chamadas por webhooks?",
+      "kind": "boolean",
+      "required": true,
+      "visibleWhen": {
+        "op": "fact",
+        "key": "domain.api"
+      }
+    },
+    {
+      "id": "q16",
+      "section": "Mobile",
+      "label": "Plataformas mobile",
+      "kind": "multiple",
+      "required": true,
+      "options": [
+        "android",
+        "ios",
+        "other"
+      ],
+      "visibleWhen": {
+        "op": "fact",
+        "key": "domain.mobile"
+      },
+      "optionLabels": {
+        "android": "Android",
+        "ios": "iOS",
+        "other": "Outra"
+      }
+    },
+    {
+      "id": "q17",
+      "section": "Mobile",
+      "label": "Armazena dados no dispositivo?",
+      "kind": "boolean",
+      "required": true,
+      "visibleWhen": {
+        "op": "fact",
+        "key": "domain.mobile"
+      }
+    },
+    {
+      "id": "q18",
+      "section": "Backend",
+      "label": "Executa tarefas assíncronas?",
+      "kind": "boolean",
+      "required": true,
+      "visibleWhen": {
+        "op": "fact",
+        "key": "domain.backend"
+      }
+    },
+    {
+      "id": "q19",
+      "section": "Infraestrutura",
+      "label": "Usa containers?",
+      "kind": "boolean",
+      "required": true,
+      "visibleWhen": {
+        "op": "any",
+        "args": [
+          {
+            "op": "fact",
+            "key": "domain.infra"
+          },
+          {
+            "op": "fact",
+            "key": "domain.cloud"
+          },
+          {
+            "op": "fact",
+            "key": "domain.backend"
+          }
+        ]
+      }
+    },
+    {
+      "id": "q20",
+      "section": "Infraestrutura",
+      "label": "Usa Kubernetes?",
+      "kind": "boolean",
+      "required": true,
+      "visibleWhen": {
+        "op": "all",
+        "args": [
+          {
+            "op": "any",
+            "args": [
+              {
+                "op": "fact",
+                "key": "domain.infra"
+              },
+              {
+                "op": "fact",
+                "key": "domain.cloud"
+              },
+              {
+                "op": "fact",
+                "key": "domain.backend"
+              }
+            ]
+          },
+          {
+            "op": "fact",
+            "key": "q19"
+          }
+        ]
+      }
+    },
+    {
+      "id": "q21",
+      "section": "Cloud",
+      "label": "Provedores cloud",
+      "kind": "multiple",
+      "required": true,
+      "options": [
+        "aws",
+        "azure",
+        "gcp",
+        "other"
+      ],
+      "visibleWhen": {
+        "op": "fact",
+        "key": "domain.cloud"
+      },
+      "optionLabels": {
+        "aws": "AWS",
+        "azure": "Azure",
+        "gcp": "Google Cloud",
+        "other": "Outro"
+      }
+    },
+    {
+      "id": "q22",
+      "section": "Cloud",
+      "label": "Usa armazenamento de objetos?",
+      "kind": "boolean",
+      "required": true,
+      "visibleWhen": {
+        "op": "fact",
+        "key": "domain.cloud"
+      }
+    },
+    {
+      "id": "q23",
+      "section": "CI/CD",
+      "label": "Possui pipeline automatizado?",
+      "kind": "boolean",
+      "required": true,
+      "visibleWhen": {
+        "op": "fact",
+        "key": "domain.cicd"
+      }
+    },
+    {
+      "id": "q24",
+      "section": "CI/CD",
+      "label": "Pipeline acessa segredos ou credenciais?",
+      "kind": "boolean",
+      "required": true,
+      "visibleWhen": {
+        "op": "all",
+        "args": [
+          {
+            "op": "fact",
+            "key": "domain.cicd"
+          },
+          {
+            "op": "fact",
+            "key": "q23"
+          }
+        ]
+      }
+    }
+  ]
+}

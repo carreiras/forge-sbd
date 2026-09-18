@@ -1,0 +1,22 @@
+{
+  "name": "forge-sbd",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=24.21.0 <25"
+  },
+  "scripts": {
+    "build": "npm run build -w @forge-sbd/contracts && npm run build -w @forge-sbd/rules",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present"
+  },
+  "devDependencies": {
+    "@types/node": "24.13.5",
+    "typescript": "5.9.3",
+    "vitest": "4.1.11"
+  }
+}

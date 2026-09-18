@@ -1,0 +1,20 @@
+name: forge-sbd
+services:
+  postgres:
+    image: postgres:17
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5438}:5432"
+    environment:
+      POSTGRES_USER: forge_sbd
+      POSTGRES_DB: forge_sbd
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Configure POSTGRES_PASSWORD in .env}
+    volumes:
+      - forge_sbd_pg:/var/lib/postgresql/data
+      - ./infra/postgres/init.sql:/docker-entrypoint-initdb.d/01-test-db.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U forge_sbd -d forge_sbd"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+volumes:
+  forge_sbd_pg:
