@@ -1,0 +1,276 @@
+{
+  "version": "demo-1",
+  "rulesVersion": "rules-1",
+  "controls": [
+    {
+      "id": "DEMO-001",
+      "version": "1",
+      "title": "Revisar desenho e fluxos de dados",
+      "purpose": "Demonstrar a seleção contextual de requisitos; conteúdo sujeito a revisão corporativa.",
+      "guidance": "Exemplo demonstrativo: Documentar componentes e fluxos do projeto.",
+      "acceptance": "A avaliação identifica os componentes e o contexto utilizado.",
+      "phase": "design",
+      "priority": "medium",
+      "domains": [],
+      "origin": "demonstration"
+    },
+    {
+      "id": "DEMO-002",
+      "version": "1",
+      "title": "Definir proteção do tráfego externo",
+      "purpose": "Demonstrar a seleção contextual de requisitos; conteúdo sujeito a revisão corporativa.",
+      "guidance": "Exemplo demonstrativo: Registrar quais fluxos externos precisam de proteção.",
+      "acceptance": "Os fluxos externos e suas decisões estão descritos.",
+      "phase": "design",
+      "priority": "medium",
+      "domains": [],
+      "origin": "demonstration",
+      "rule": {
+        "op": "fact",
+        "key": "q02"
+      }
+    },
+    {
+      "id": "DEMO-003",
+      "version": "1",
+      "title": "Definir tratamento dos dados pessoais",
+      "purpose": "Demonstrar a seleção contextual de requisitos; conteúdo sujeito a revisão corporativa.",
+      "guidance": "Exemplo demonstrativo: Registrar dados tratados e responsáveis por seu tratamento.",
+      "acceptance": "Categorias de dados e finalidade estão identificadas.",
+      "phase": "design",
+      "priority": "medium",
+      "domains": [],
+      "origin": "demonstration",
+      "rule": {
+        "op": "any",
+        "args": [
+          {
+            "op": "fact",
+            "key": "q03"
+          },
+          {
+            "op": "fact",
+            "key": "q04"
+          }
+        ]
+      }
+    },
+    {
+      "id": "DEMO-004",
+      "version": "1",
+      "title": "Definir gestão da autenticação",
+      "purpose": "Demonstrar a seleção contextual de requisitos; conteúdo sujeito a revisão corporativa.",
+      "guidance": "Exemplo demonstrativo: Descrever o fluxo de identidade e recuperação de acesso.",
+      "acceptance": "O mecanismo de autenticação está documentado.",
+      "phase": "design",
+      "priority": "medium",
+      "domains": [],
+      "origin": "demonstration",
+      "rule": {
+        "op": "fact",
+        "key": "q06"
+      }
+    },
+    {
+      "id": "DEMO-005",
+      "version": "1",
+      "title": "Definir manutenção das dependências",
+      "purpose": "Demonstrar a seleção contextual de requisitos; conteúdo sujeito a revisão corporativa.",
+      "guidance": "Exemplo demonstrativo: Registrar dependências e processo de atualização.",
+      "acceptance": "As dependências e o responsável por atualização estão identificados.",
+      "phase": "design",
+      "priority": "medium",
+      "domains": [
+        "web",
+        "api",
+        "mobile",
+        "backend"
+      ],
+      "origin": "demonstration",
+      "rule": {
+        "op": "all",
+        "args": [
+          {
+            "op": "any",
+            "args": [
+              {
+                "op": "fact",
+                "key": "domain.web"
+              },
+              {
+                "op": "fact",
+                "key": "domain.api"
+              },
+              {
+                "op": "fact",
+                "key": "domain.mobile"
+              },
+              {
+                "op": "fact",
+                "key": "domain.backend"
+              }
+            ]
+          },
+          {
+            "op": "fact",
+            "key": "q10"
+          }
+        ]
+      }
+    },
+    {
+      "id": "DEMO-006",
+      "version": "1",
+      "title": "Definir proteção de sessões web",
+      "purpose": "Demonstrar a seleção contextual de requisitos; conteúdo sujeito a revisão corporativa.",
+      "guidance": "Exemplo demonstrativo: Descrever duração, cookies e revogação das sessões.",
+      "acceptance": "O ciclo de sessão está documentado.",
+      "phase": "design",
+      "priority": "medium",
+      "domains": [
+        "web"
+      ],
+      "origin": "demonstration",
+      "rule": {
+        "op": "all",
+        "args": [
+          {
+            "op": "fact",
+            "key": "domain.web"
+          },
+          {
+            "op": "fact",
+            "key": "q12"
+          }
+        ]
+      }
+    },
+    {
+      "id": "DEMO-007",
+      "version": "1",
+      "title": "Definir autorização por recurso da API",
+      "purpose": "Demonstrar a seleção contextual de requisitos; conteúdo sujeito a revisão corporativa.",
+      "guidance": "Exemplo demonstrativo: Documentar como a decisão de acesso é vinculada ao usuário e ao recurso.",
+      "acceptance": "A avaliação registra a regra e os fatos que selecionaram este requisito.",
+      "phase": "design",
+      "priority": "medium",
+      "domains": [
+        "api"
+      ],
+      "origin": "demonstration",
+      "rule": {
+        "op": "all",
+        "args": [
+          {
+            "op": "fact",
+            "key": "domain.api"
+          },
+          {
+            "op": "fact",
+            "key": "q14"
+          }
+        ]
+      }
+    },
+    {
+      "id": "DEMO-008",
+      "version": "1",
+      "title": "Definir proteção do armazenamento mobile",
+      "purpose": "Demonstrar a seleção contextual de requisitos; conteúdo sujeito a revisão corporativa.",
+      "guidance": "Exemplo demonstrativo: Registrar quais dados ficam no dispositivo e como serão protegidos.",
+      "acceptance": "Os dados locais e a decisão de armazenamento estão descritos.",
+      "phase": "design",
+      "priority": "medium",
+      "domains": [
+        "mobile"
+      ],
+      "origin": "demonstration",
+      "rule": {
+        "op": "all",
+        "args": [
+          {
+            "op": "fact",
+            "key": "domain.mobile"
+          },
+          {
+            "op": "fact",
+            "key": "q17"
+          }
+        ]
+      }
+    },
+    {
+      "id": "DEMO-009",
+      "version": "1",
+      "title": "Definir configuração segura de containers",
+      "purpose": "Demonstrar a seleção contextual de requisitos; conteúdo sujeito a revisão corporativa.",
+      "guidance": "Exemplo demonstrativo: Descrever imagens, permissões e isolamento dos containers.",
+      "acceptance": "A configuração planejada tem responsável e contexto.",
+      "phase": "design",
+      "priority": "medium",
+      "domains": [
+        "infra",
+        "cloud",
+        "backend"
+      ],
+      "origin": "demonstration",
+      "rule": {
+        "op": "all",
+        "args": [
+          {
+            "op": "any",
+            "args": [
+              {
+                "op": "fact",
+                "key": "domain.infra"
+              },
+              {
+                "op": "fact",
+                "key": "domain.cloud"
+              },
+              {
+                "op": "fact",
+                "key": "domain.backend"
+              }
+            ]
+          },
+          {
+            "op": "fact",
+            "key": "q19"
+          }
+        ]
+      }
+    },
+    {
+      "id": "DEMO-010",
+      "version": "1",
+      "title": "Definir gestão de segredos do pipeline",
+      "purpose": "Demonstrar a seleção contextual de requisitos; conteúdo sujeito a revisão corporativa.",
+      "guidance": "Exemplo demonstrativo: Descrever acesso do pipeline a credenciais sem incluir seus valores.",
+      "acceptance": "O fluxo de credenciais está descrito sem revelar segredos.",
+      "phase": "design",
+      "priority": "medium",
+      "domains": [
+        "cicd"
+      ],
+      "origin": "demonstration",
+      "rule": {
+        "op": "all",
+        "args": [
+          {
+            "op": "fact",
+            "key": "domain.cicd"
+          },
+          {
+            "op": "fact",
+            "key": "q23"
+          },
+          {
+            "op": "fact",
+            "key": "q24"
+          }
+        ]
+      }
+    }
+  ]
+}
