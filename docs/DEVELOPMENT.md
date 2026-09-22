@@ -34,9 +34,9 @@ npm run build
 npm run start -w @forge-sbd/api
 ```
 
-A API escuta somente em `127.0.0.1`, na porta `API_PORT` (3000 por padrão). `createApp()` monta e inicializa a aplicação sem abrir porta; `main.ts` faz listen e configura encerramento. Nesta tarefa, somente saúde é uma rota pública implementada; login, portfólio e avaliações entram nas tarefas seguintes. Ainda não existe frontend utilizável.
+A API escuta somente em `127.0.0.1`, na porta `API_PORT` (3000 por padrão). `createApp()` monta e inicializa a aplicação sem abrir porta; `main.ts` faz listen e configura encerramento. Saúde e login são públicos; consulta de sessão e logout exigem autenticação. Portfólio, avaliações e frontend utilizável entram nas tarefas seguintes.
 
-Erros HTTP têm `{code,message,requestId}` e o header `X-Request-Id`; mensagens não expõem detalhes do banco. O corpo JSON está limitado a 128 KB, Helmet está ativo e o parser de cookies está preparado para a tarefa 4. O frontend futuro usará proxy `/api` e `WEB_ORIGIN=http://localhost:5173`.
+Erros HTTP têm `{code,message,requestId}` e o header `X-Request-Id`; mensagens não expõem detalhes do banco. O corpo JSON está limitado a 128 KB, Helmet está ativo e o parser de cookies é usado pelas sessões da tarefa 4. O frontend futuro usará proxy `/api` e `WEB_ORIGIN=http://localhost:5173`.
 
 ## Verificação
 
@@ -63,4 +63,30 @@ F1 continua sendo fundação técnica. Conteúdo real e integração Jira valida
 
 Manter `restclient/*.http` atualizado é requisito de desenvolvimento para toda criação, alteração ou remoção de endpoint (instruções permanentes em `AGENTS.md`). Organizar por funcionalidade, incluir exemplos executáveis e os resultados esperados, cobrir sucesso e erros relevantes e usar somente dados fictícios, sem segredos versionados.
 
-Com a API iniciada por `npm run dev:api`, abrir `restclient/health.http` ou `restclient/errors.http` e clicar em **Send Request**. Ajustar `@baseUrl` se a porta local mudar. Os cenários atuais verificam saúde (200), rota inexistente (404) e JSON malformado (400); não alteram dados. Conferir as respostas manualmente. Ver `restclient/README.md` para o procedimento completo; `npm test` continua responsável pela verificação automatizada de persistência e demais contratos.
+Com a API iniciada por `npm run dev:api`, abrir `restclient/health.http`, `restclient/errors.http` ou `restclient/auth.http` e clicar em **Send Request**. Ajustar `@baseUrl` se a porta local mudar. Os cenários de saúde/erros não alteram dados; o arquivo auth cria e revoga sessões. Execute seus blocos em ordem. Conferir as respostas manualmente. Ver `restclient/README.md` para o procedimento completo; `npm test` continua responsável pela verificação automatizada de persistência e demais contratos.
+
+## Administrador e autenticação
+
+Após aplicar migrations, crie seu administrador uma única vez, no terminal local:
+
+```powershell
+npm run admin:bootstrap -w @forge-sbd/api
+```
+
+O comando pede email, senha de 12–128 caracteres sem eco e confirmação. Não recebe credenciais por argumentos ou stdin redirecionado. Email é normalizado; senha preserva espaços. Se já existir usuário, aborta sem alterar dados. Uma transação com lock impede duas criações simultâneas. Nenhum administrador ou senha padrão é criado ao iniciar a API. O operador escolhe sua senha; não incluí-la em arquivos versionados.
+
+| Rota | Comportamento |
+|---|---|
+| POST /api/v1/auth/login | Origin igual a WEB_ORIGIN, JSON estrito com email/password; 200 com user/csrfToken e cookies |
+| GET /api/v1/auth/me | Sessão válida e cookie CSRF correspondente; 200 com user/csrfToken sem rotacionar tokens |
+| POST /api/v1/auth/logout | Sessão válida, Origin autorizado e X-CSRF-Token; 204, revogação no banco e remoção dos cookies |
+
+Cookies `forge_session` e `forge_csrf`: HttpOnly, SameSite=Lax, Path=/, duração de oito horas e Secure quando NODE_ENV=production. Não definir NODE_ENV=production para o teste local por HTTP. O banco armazena somente os hashes dos tokens. Senhas usam scrypt assíncrono, sal individual e parâmetros do plano. Respostas de sucesso da autenticação usam Cache-Control: no-store.
+
+Guards globais protegem rotas futuras por padrão; somente saúde e login recebem a marcação Public. Mutações exigem origem autorizada e token CSRF vinculado à sessão; login exige Origin mesmo sendo público. Manter o frontend no proxy local previsto, sem habilitar CORS amplo. A origem configurada para o frontend (localhost:5173 por padrão) pode diferir do host da API no REST Client; o header deve corresponder exatamente a WEB_ORIGIN.
+
+Login limita cinco falhas em quinze minutos por IP+email normalizado, com reserva de tentativas em andamento e no máximo dez mil chaves. O limite é local ao processo, não compartilhado entre instâncias e reinicia com a API; esse desenho atende ao ambiente local desta entrega. O IP vem da conexão, sem confiar em X-Forwarded-For. Entradas expiradas são removidas durante novas tentativas.
+
+O seed de administrador existe somente no suporte de testes e recusa banco cujo nome não termine em _test. `npm test` cobre login/logout, expiração, tokens inválidos, CSRF, Origin, corpo inválido/excessivo, limitação com relógio controlado, bootstrap concorrente e leitura de senha sem eco.
+
+Antes de usar o login do REST Client, execute `npm run restclient:credentials -w @forge-sbd/api`. Esse comando pede email/senha com senha sem eco e grava JSON válido em `restclient/login.local.json`, ignorado pelo Git. O arquivo contém credenciais locais em claro; remova-o após testar. Para atualizar, remova-o e execute novamente; o comando não sobrescreve arquivos existentes. Essa alternativa evita o prompt visível da extensão instalada 0.25.1 e trata corretamente senhas com aspas e barras. Ela não cria nem altera usuários no banco.

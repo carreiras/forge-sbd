@@ -8,7 +8,7 @@ Solução própria com equivalência funcional ao SD Elements para estabelecer S
 
 ## Execução autorizada
 
-Desenho e plano F1 aprovados; execução tarefa por tarefa. Repositório: C:\projetos\apps\forge-sbd; remoto https://github.com/carreiras/forge-sbd.git. A fundação foi integrada à main em b7520ee (PR #1). Tarefa 3 implementada na branch local feat/api-persistence, no checkout original solicitado. API e frontend são locais; Docker somente para PostgreSQL.
+Desenho e plano F1 aprovados; execução tarefa por tarefa. Repositório: C:\projetos\apps\forge-sbd; remoto https://github.com/carreiras/forge-sbd.git. Fundação integrada em b7520ee (PR #1) e tarefa 3 integrada em 6051647 (PR #2). Tarefa 4 implementada na branch local feat/admin-auth, no checkout original solicitado. API e frontend são locais; Docker somente para PostgreSQL.
 
 ## Progresso verificado
 
@@ -23,13 +23,21 @@ Desenho e plano F1 aprovados; execução tarefa por tarefa. Repositório: C:\pro
 - Typecheck e build completos passaram. Smoke HTTP dos processos compilado e tsx passou. A primeira tentativa de build foi bloqueada pela sandbox em dist existente; repetição com permissão adequada passou.
 - npm audit: zero vulnerabilidades após overrides pontuais documentados em docs/DEVELOPMENT.md. Revisão independente da tarefa 3 sem achados acionáveis.
 
+## Tarefa 4 — autenticação validada em 22/09/2026
+
+- Login, consulta de sessão e logout REST implementados. Senhas scrypt com sal individual; tokens aleatórios de sessão e CSRF armazenados somente como hashes; cookies HttpOnly/Lax, oito horas e Secure em produção.
+- Guards globais exigem sessão nas rotas e Origin/CSRF nas mutações; saúde e login públicos, com Origin obrigatório no login. Email normalizado e payload de login estrito.
+- Limite de cinco falhas em quinze minutos por IP+email, com reserva de tentativas concorrentes, limpeza de expirados e limite de dez mil chaves. Estado local ao processo.
+- Bootstrap interativo com senha sem eco e confirmação; recusa administrador existente e serializa criações concorrentes. Nenhum administrador real foi criado nesta tarefa.
+- REST Client: auth.http cobre login, sessão, logout e erros. Comando restclient:credentials gera login.local.json ignorado pelo Git; evita prompt visível da extensão instalada e preserva senhas com aspas/barras. O arquivo local contém senha em claro e deve ser removido após os testes.
+- Verificação final: 61 testes passaram (25 API/configuração e 36 motor); typecheck e build completos passaram. Doze blocos HTTP passaram em dois processos reais (compilado e tsx), totalizando 24 requisições. Bootstrap e geração de credenciais testados em terminal real sem eco de senha. Somente dados fictícios no banco _test; arquivo local temporário removido.
+- Revisão independente apontou dois problemas no fluxo REST Client; ambos corrigidos e verificados. Núcleo de autenticação sem defeito confirmado na revisão. Não houve mudança de dependências ou schema nesta tarefa.
+
 ## Próximo trabalho
 
-Tarefa 4 do plano: hash de senha, bootstrap do administrador, login, sessões, CSRF, expiração e limitação de tentativas. Implementar seedTestAdmin junto à função real de hash, conforme decisão registrada em docs/task-3-execution.md. Em seguida tarefas 5–6 (portfólio/rascunhos e avaliações imutáveis), frontend e aceite integrado.
+Tarefa 5 do plano: cadastro de aplicações/projetos e rascunho do questionário com revisão otimista, validação, auditoria transacional e exemplos REST Client. Depois, tarefa 6 (avaliações imutáveis), frontend e aceite integrado.
 
-A tarefa 3 entrega a base REST e a persistência, não os endpoints de negócio. Autenticação, frontend utilizável e integração Jira ainda não estão implementados. Imutabilidade completa de avaliações no fluxo da API será validada na tarefa 6; as FKs atuais impedem remoção em cascata do histórico.
-
-F1 ainda não está concluída. F2 amplia conteúdo real e editor. F3 implementa Jira obrigatório antes do piloto. Manter roadmap e matriz de equivalência como referência das fases posteriores.
+API de autenticação disponível; endpoints de portfólio/avaliações, frontend utilizável e integração Jira ainda não estão implementados. F1 continua incompleta. F2 amplia conteúdo real e editor; F3 implementa Jira obrigatório antes do piloto útil.
 
 ## Pendências
 

@@ -1,0 +1,75 @@
+@baseUrl = http://127.0.0.1:3000/api/v1
+@origin = http://localhost:5173
+
+### 1. Login — esperado: 200 com user e csrfToken; cria sessão e dois cookies
+# Antes: npm run admin:bootstrap -w @forge-sbd/api
+# Depois: npm run restclient:credentials -w @forge-sbd/api (senha oculta no terminal)
+# Ative rest-client.rememberCookiesForSubsequentRequests (padrão: true).
+# Não alterne entre localhost e 127.0.0.1 durante este fluxo.
+# @name login
+POST {{baseUrl}}/auth/login
+Origin: {{origin}}
+Content-Type: application/json
+Accept: application/json
+
+< ./login.local.json
+
+### 2. Sessão atual — esperado: 200 com o mesmo user e csrfToken do login
+# Os cookies são reenviados pelo REST Client. Esta consulta não rotaciona tokens.
+# @name currentSession
+GET {{baseUrl}}/auth/me
+Accept: application/json
+
+### 3. Logout sem CSRF — esperado: 403; mantém a sessão
+# @name logoutWithoutCsrf
+POST {{baseUrl}}/auth/logout
+Origin: {{origin}}
+Accept: application/json
+
+### 4. Logout com Origin externo — esperado: 403; mantém a sessão
+# @name logoutExternalOrigin
+POST {{baseUrl}}/auth/logout
+Origin: https://example.invalid
+X-CSRF-Token: {{login.response.body.$.csrfToken}}
+Accept: application/json
+
+### 5. Logout válido — esperado: 204; revoga sessão e remove cookies
+# Execute o login deste arquivo antes para resolver o token.
+# @name logout
+POST {{baseUrl}}/auth/logout
+Origin: {{origin}}
+X-CSRF-Token: {{login.response.body.$.csrfToken}}
+Accept: application/json
+
+### 6. Sessão após logout — esperado: 401
+# @name afterLogout
+GET {{baseUrl}}/auth/me
+Accept: application/json
+
+### 7. Credenciais fictícias inválidas — esperado: 401
+# Não cria sessão. Após cinco falhas deste IP+email em 15 min, retorna 429.
+# Email inexistente e senha incorreta têm a mesma resposta.
+# @name invalidCredentials
+POST {{baseUrl}}/auth/login
+Origin: {{origin}}
+Content-Type: application/json
+Accept: application/json
+
+{"email":"inexistente@example.invalid","password":"Senha ficticia incorreta!"}
+
+### 8. Login sem Origin — esperado: 403
+# @name loginWithoutOrigin
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+Accept: application/json
+
+{"email":"inexistente@example.invalid","password":"Senha ficticia incorreta!"}
+
+### 9. Campo extra — esperado: 400
+# @name extraField
+POST {{baseUrl}}/auth/login
+Origin: {{origin}}
+Content-Type: application/json
+Accept: application/json
+
+{"email":"inexistente@example.invalid","password":"Senha ficticia incorreta!","role":"admin"}

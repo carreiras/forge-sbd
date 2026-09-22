@@ -1,4 +1,5 @@
-export type ApiConfig = { databaseUrl: string; port: number; webOrigin: string };
+export const API_CONFIG = Symbol('API_CONFIG');
+export type ApiConfig = { databaseUrl: string; port: number; webOrigin: string; secureCookies: boolean };
 
 export function readConfig(env: NodeJS.ProcessEnv = process.env): ApiConfig {
   const databaseUrl = env.DATABASE_URL ?? '';
@@ -16,5 +17,5 @@ export function readConfig(env: NodeJS.ProcessEnv = process.env): ApiConfig {
     const url = new URL(webOrigin);
     if (!['http:', 'https:'].includes(url.protocol) || url.origin !== webOrigin) throw new Error();
   } catch { throw new Error('WEB_ORIGIN deve ser uma origem HTTP(S) sem caminho ou credenciais.'); }
-  return { databaseUrl, port, webOrigin };
+  return { databaseUrl, port, webOrigin, secureCookies: env.NODE_ENV === 'production' };
 }

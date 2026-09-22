@@ -12,7 +12,9 @@
     "test:integration": "vitest run",
     "db:generate": "prisma generate",
     "db:deploy": "prisma migrate deploy",
-    "db:deploy:test": "tsx scripts/deploy-test.ts"
+    "db:deploy:test": "tsx scripts/deploy-test.ts",
+    "admin:bootstrap": "tsx src/auth/bootstrap-admin.ts",
+    "restclient:credentials": "tsx src/auth/prepare-restclient.ts"
   },
   "devDependencies": {
     "@types/cookie-parser": "1.4.10",
