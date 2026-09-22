@@ -10,3 +10,6 @@ playwright-report/
 test-results/
 apps/api/src/generated/
 *.tsbuildinfo
+
+# Local REST Client credentials and session data
+restclient/*.local.json

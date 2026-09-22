@@ -51,3 +51,12 @@ export async function startTestApp(): Promise<{
     throw new Error('Falha ao preparar PostgreSQL de teste. Verifique TEST_DATABASE_URL, Docker e migrations; nenhum teste foi ignorado.');
   }
 }
+
+export async function seedTestAdmin(db: DatabaseService): Promise<{ email: string; password: string }> {
+  const rows = await db.$queryRaw<{ name: string }[]>`SELECT current_database() AS name`;
+  if (!rows[0]?.name.endsWith('_test')) throw new Error('seedTestAdmin exige banco dedicado _test.');
+  const { hashPassword } = await import('../src/auth/password.js');
+  const credentials = { email: 'admin@example.test', password: 'Senha ficticia 123!' };
+  await db.user.create({ data: { email: credentials.email, passwordHash: await hashPassword(credentials.password) } });
+  return credentials;
+}

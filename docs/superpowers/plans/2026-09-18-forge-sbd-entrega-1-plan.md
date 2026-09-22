@@ -289,13 +289,15 @@ Generator: provider prisma-client, output ../src/generated/prisma, moduleFormat 
 Compose opcional: postgres:17, porta 127.0.0.1:5432:5432, volume próprio forge_sbd_pg, POSTGRES_PASSWORD obrigatório via env. .env.example deixa senha vazia com comentário de configuração; .env ignorado. Banco de teste distinto. Não usar `migrate reset` em banco existente.
 - [x] **Step 4 — Migrar em banco dedicado e testar.** `npm run db:generate -w @forge-sbd/api`, criar migration inicial no banco local vazio e executar migrate deploy no banco de teste; `npm run test:integration -w @forge-sbd/api -- test/database.integration.test.ts`. Commit: `feat: add local postgres persistence and api bootstrap`.
 
-## Task 4: Login, sessão e proteção das mutações
+## Task 4: Login, sessão e proteção das mutações — concluída em 22/09/2026
+
+> Evidências: `docs/task-4-execution.md`. Instruções de bootstrap e REST Client: `docs/DEVELOPMENT.md` e `restclient/README.md`. Guards globais, 61 testes passando e fluxo HTTP validado nos modos compilado/tsx.
 
 **Files:** criar src/auth/password.ts, password.test.ts, auth.module.ts, auth.service.ts, auth.controller.ts, session.guard.ts, csrf.guard.ts, bootstrap-admin.ts; test/auth.integration.test.ts. Modificar create-app.ts e support.ts.
 
 **Interfaces:** `hashPassword(password:string):Promise<string>` e `verifyPassword(password:string,encoded:string):Promise<boolean>`; `SessionGuard` popula `request.user={id,email}`; `CsrfGuard` valida Origin e token. Login retorna `{user:{id,email},csrfToken}`; GET me retorna mesmo shape. Logout responde 204.
 
-- [ ] **Step 1 — Testar senha, acesso, CSRF e revogação.**
+- [x] **Step 1 — Testar senha, acesso, CSRF e revogação.**
 
 ```ts
 it('recusa mutação sem CSRF e sessão após logout',async()=>{
@@ -314,8 +316,8 @@ it('recusa mutação sem CSRF e sessão após logout',async()=>{
 ```
 
 Também testar: senha errada, email desconhecido com mesma mensagem, cookie HttpOnly/Lax, sessão expirada, token aleatório, Origin externo, corpo acima de 128KB, limite de tentativas e desbloqueio com relógio controlado.
-- [ ] **Step 2 — Rodar testes auth e observar falha por rotas ausentes.**
-- [ ] **Step 3 — Implementar senha/sessão.** Scrypt N=32768,r=8,p=1,maxmem=64MiB, sal 16 bytes e resultado 64 bytes; formato `scrypt$32768$8$1$<saltHex>$<hashHex>`; validar formato/tamanho antes de comparar com timingSafeEqual. Testar sal diferente para mesma senha e hash inválido retorna false. Senha 12–128 caracteres; login não imprime input.
+- [x] **Step 2 — Rodar testes auth e observar falha por rotas ausentes.**
+- [x] **Step 3 — Implementar senha/sessão.** Scrypt N=32768,r=8,p=1,maxmem=64MiB, sal 16 bytes e resultado 64 bytes; formato `scrypt$32768$8$1$<saltHex>$<hashHex>`; validar formato/tamanho antes de comparar com timingSafeEqual. Testar sal diferente para mesma senha e hash inválido retorna false. Senha 12–128 caracteres; login não imprime input.
 
 ```ts
 const sessionToken=randomBytes(32).toString('hex');
@@ -330,7 +332,7 @@ Para GET me devolver token CSRF sem armazená-lo em claro: guardar token no cook
 Limitação local: 5 falhas em 15 minutos por IP+email normalizado, hash de email na chave; limpeza de entradas expiradas e limite de 10 mil chaves, sem persistir credenciais. Login verifica Origin; mutações autenticadas verificam sessão+Origin+CSRF. Helmet e limite JSON de 128KB em createApp.
 
 Bootstrap usa stdin/terminal com senha sem eco, confirmado duas vezes. Aborta se admin já existir. Testes usam seedTestAdmin com senha fictícia somente em banco `_test`.
-- [ ] **Step 4 — Executar testes e typecheck.** Commit: `feat: add admin sessions and csrf protection`.
+- [x] **Step 4 — Executar testes e typecheck.** Commit: `feat: add admin sessions and csrf protection`.
 
 ## Task 5: Cadastro de portfólio e rascunho com revisão
 
