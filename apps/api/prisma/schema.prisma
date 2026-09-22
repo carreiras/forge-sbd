@@ -1,0 +1,102 @@
+generator client {
+  provider = "prisma-client"
+  output = "../src/generated/prisma"
+  moduleFormat = "esm"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id String @id @default(uuid()) @db.Uuid
+  email String @unique @db.VarChar(254)
+  passwordHash String
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  sessions Session[]
+  auditEvents AuditEvent[]
+}
+
+model Session {
+  id String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict)
+  tokenHash String @unique @db.VarChar(64)
+  csrfHash String @db.VarChar(64)
+  expiresAt DateTime @db.Timestamptz(3)
+  revokedAt DateTime? @db.Timestamptz(3)
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model Application {
+  id String @id @default(uuid()) @db.Uuid
+  name String @db.VarChar(120)
+  description String @db.VarChar(2000)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  projects Project[]
+}
+
+model Project {
+  id String @id @default(uuid()) @db.Uuid
+  applicationId String @db.Uuid
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Restrict)
+  name String @db.VarChar(120)
+  description String @db.VarChar(2000)
+  owner String @db.VarChar(160)
+  domains Json
+  revision Int @default(0)
+  surveyDraft SurveyDraft?
+  assessments Assessment[]
+  @@index([applicationId])
+}
+
+model SurveyDraft {
+  projectId String @id @db.Uuid
+  project Project @relation(fields: [projectId], references: [id], onDelete: Restrict)
+  questionnaireVersion String
+  answers Json
+  needsConfirmationIds Json
+  revision Int @default(0)
+}
+
+model Assessment {
+  id String @id @default(uuid()) @db.Uuid
+  projectId String @db.Uuid
+  project Project @relation(fields: [projectId], references: [id], onDelete: Restrict)
+  fingerprint String @db.VarChar(64)
+  context Json
+  catalogSnapshot Json
+  decisions Json
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  requirements Requirement[]
+  @@unique([projectId, fingerprint])
+  @@index([projectId, createdAt])
+}
+
+enum Applicability {
+  applicable
+  needs_information
+}
+
+model Requirement {
+  id String @id @default(uuid()) @db.Uuid
+  assessmentId String @db.Uuid
+  assessment Assessment @relation(fields: [assessmentId], references: [id], onDelete: Restrict)
+  controlId String
+  controlSnapshot Json
+  applicability Applicability
+  @@unique([assessmentId, controlId])
+}
+
+model AuditEvent {
+  id String @id @default(uuid()) @db.Uuid
+  actorId String @db.Uuid
+  actor User @relation(fields: [actorId], references: [id], onDelete: Restrict)
+  action String
+  targetId String @db.Uuid
+  requestId String @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@index([actorId])
+  @@index([targetId, createdAt])
+}
