@@ -1,0 +1,6 @@
+@baseUrl = http://127.0.0.1:3000/api/v1
+
+### Saúde pública — esperado: 200 e {"status":"ok"}
+# @name health
+GET {{baseUrl}}/health
+Accept: application/json

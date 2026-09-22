@@ -47,3 +47,13 @@ F1 ainda não está concluída. F2 amplia conteúdo real e editor. F3 implementa
 4. docs/superpowers/specs/2026-09-18-jira-obrigatorio-design.md
 5. Especificação e plano da entrega ativa em docs/superpowers.
 6. docs/DEVELOPMENT.md para comandos de instalação, migrations e execução local.
+
+## Testes manuais REST Client — 22/09/2026
+
+A pedido do usuário, adicionada a pasta `restclient` com `health.http`, `errors.http` e instruções de uso. Os três exemplos foram lidos dos próprios arquivos e executados contra uma instância local temporária da API: saúde 200, rota inexistente 404 e JSON malformado 400; corpo JSON, requestId e header de segurança conferidos. A interface da extensão no VS Code não foi automatizada. Nenhum dado foi alterado.
+
+`AGENTS.md` registra a regra permanente: toda entrega de endpoint deve incluir a criação/atualização dos exemplos REST Client, com sucesso, erros relevantes, instruções de autenticação quando disponíveis e sem segredos versionados. Procedimento também registrado em `docs/DEVELOPMENT.md`. Próxima tarefa permanece a 4; seus endpoints de login/sessão deverão incluir os arquivos `.http` correspondentes.
+
+## Instruções consolidadas — 22/09/2026
+
+AGENTS.md ampliado com fontes de referência, arquitetura e invariantes, convenções de código, obrigatoriedade do REST Client, comandos de verificação, critérios de conclusão e regras de Git. Mantém o progresso neste documento e os detalhes operacionais em DEVELOPMENT.md. Revisados texto, referências locais e existência dos scripts citados; mudança apenas documental, sem nova execução da suíte de aplicação. Próximo passo permanece a tarefa 4.

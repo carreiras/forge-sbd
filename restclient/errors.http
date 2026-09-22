@@ -1,0 +1,17 @@
+@baseUrl = http://127.0.0.1:3000/api/v1
+
+### Rota inexistente — esperado: 404 e code NOT_FOUND
+# O requestId do JSON deve ser igual ao header X-Request-Id.
+# @name notFound
+GET {{baseUrl}}/rota-inexistente
+Accept: application/json
+
+### JSON malformado — esperado: 400 e code BAD_REQUEST
+# Corpo inválido intencionalmente para testar o tratamento de erros.
+# A requisição é rejeitada pelo parser antes de resolver a rota; não grava dados.
+# @name invalidJson
+POST {{baseUrl}}/rota-inexistente
+Content-Type: application/json
+Accept: application/json
+
+{"invalid":

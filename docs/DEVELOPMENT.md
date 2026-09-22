@@ -58,3 +58,9 @@ NestJS 11.2.5; Prisma client/adapter/CLI 7.10.0, com client ESM gerado em `apps/
 Overrides pontuais de `multer` 2.4.0, `deepmerge-ts` 8.0.2 e `mysql2` 3.24.4 corrigem advisories transitivos sem trocar as linhas NestJS/Prisma aprovadas. A compatibilidade é verificada por generate, migrate deploy, build e integração. Rever esses overrides ao atualizar os pacotes pais. Não existem uploads nem MySQL no produto.
 
 F1 continua sendo fundação técnica. Conteúdo real e integração Jira validada são obrigatórios antes do primeiro piloto útil.
+
+## REST Client no VS Code
+
+Manter `restclient/*.http` atualizado é requisito de desenvolvimento para toda criação, alteração ou remoção de endpoint (instruções permanentes em `AGENTS.md`). Organizar por funcionalidade, incluir exemplos executáveis e os resultados esperados, cobrir sucesso e erros relevantes e usar somente dados fictícios, sem segredos versionados.
+
+Com a API iniciada por `npm run dev:api`, abrir `restclient/health.http` ou `restclient/errors.http` e clicar em **Send Request**. Ajustar `@baseUrl` se a porta local mudar. Os cenários atuais verificam saúde (200), rota inexistente (404) e JSON malformado (400); não alteram dados. Conferir as respostas manualmente. Ver `restclient/README.md` para o procedimento completo; `npm test` continua responsável pela verificação automatizada de persistência e demais contratos.
