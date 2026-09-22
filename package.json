@@ -10,13 +10,27 @@
     "node": ">=24.21.0 <25"
   },
   "scripts": {
-    "build": "npm run build -w @forge-sbd/contracts && npm run build -w @forge-sbd/rules",
+    "build": "npm run build -w @forge-sbd/contracts && npm run build -w @forge-sbd/rules && npm run build -w @forge-sbd/api",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "test": "npm run test --workspaces --if-present"
+    "test": "npm run test --workspaces --if-present",
+    "dev:api": "npm run dev -w @forge-sbd/api",
+    "db:generate": "npm run db:generate -w @forge-sbd/api",
+    "db:deploy": "npm run db:deploy -w @forge-sbd/api"
   },
   "devDependencies": {
     "@types/node": "24.13.5",
     "typescript": "5.9.3",
     "vitest": "4.1.11"
+  },
+  "overrides": {
+    "@nestjs/platform-express": {
+      "multer": "2.4.0"
+    },
+    "@prisma/config": {
+      "deepmerge-ts": "8.0.2"
+    },
+    "prisma": {
+      "mysql2": "3.24.4"
+    }
   }
 }

@@ -245,13 +245,15 @@ O arquivo final contém dez controles. Redigir cada orientação como demonstra�
 - [ ] **Step 4 — Implementar normalização e validação.** Construir fatos conhecidos de domínio; validar opções; avaliar visibilidade por dependências em ordem topológica; detectar ciclo de visibilidade. Respostas inativas permanecem no draft e são excluídas do snapshot. needsConfirmationIds produzem ausência ativa até confirmação. Campo contraditório ativo retorna contradiction. Limites de regra da especificação aplicam-se a visibilidade e controles; soma de perguntas/controles fica limitada a 1000 em cada arquivo.
 - [ ] **Step 5 — Rodar testes, typecheck e build.** Commit: `feat: add conditional survey and demo controls`.
 
-## Task 3: Persistência e API testável
+## Task 3: Persistência e API testável — concluída em 22/09/2026
+
+> Evidências e decisões: `docs/task-3-execution.md`; operação: `docs/DEVELOPMENT.md`. Porta real 5438; seedTestAdmin acompanha o hash real na tarefa 4. API local, Docker somente PostgreSQL.
 
 **Files:** criar apps/api/package.json, tsconfig.json, vitest.config.ts, prisma.config.ts, prisma/schema.prisma, src/database/database.service.ts, src/create-app.ts, src/main.ts, src/app.module.ts, src/audit/audit.service.ts, test/support.ts, test/database.integration.test.ts; raiz .env.example e compose.yaml.
 
 **Interfaces:** `createApp():Promise<INestApplication>` monta guards/configuração sem listen; main chama listen. `DatabaseService extends PrismaClient`; `AuditService.record(tx,event)` recebe transação Prisma e `{actorId,action,targetId,requestId}`. Suporte `startTestApp():Promise<{app:INestApplication,db:DatabaseService,close():Promise<void>}>` e `seedTestAdmin(db):Promise<{email:string,password:string}>`; banco dedicado termina `_test` e deve ser conferido antes de qualquer limpeza.
 
-- [ ] **Step 1 — Escrever teste de persistência e saúde.**
+- [x] **Step 1 — Escrever teste de persistência e saúde.**
 
 ```ts
 it('saúde e aplicação persistida',async()=>{
@@ -266,8 +268,8 @@ it('saúde e aplicação persistida',async()=>{
 
 Imports: vitest, supertest e ./support.js. Não compartilhar credenciais ou banco da máquina com testes. Conexão de integração usa TEST_DATABASE_URL; sem banco, falhar com diagnóstico explícito em vez de ignorar teste.
 
-- [ ] **Step 2 — Configurar scripts e rodar a falha.** API usa `tsx src/main.ts` em dev, tsc para build, `vitest run` para testes, `prisma generate` e `prisma migrate deploy` para banco. Instalar Nest11, reflect-metadata, rxjs, cookie-parser, helmet, Zod, pg e adapter/client Prisma7; pares Prisma têm patch exato igual. Dev deps: tsx, vitest, supertest e tipos. Teste inicial falha por módulo ausente.
-- [ ] **Step 3 — Criar schema.** User: UUID, email único normalizado, passwordHash, createdAt. Session: UUID, userId, tokenHash único, csrfHash, expiresAt, revokedAt. Application: UUID, name, description, createdAt. Project: UUID, applicationId, name, description, owner, domains JSON, revision default 0. SurveyDraft: projectId único, questionnaireVersion, answers JSON, needsConfirmationIds JSON, revision default 0. Assessment: UUID, projectId, fingerprint, context JSON, catalogSnapshot JSON, decisions JSON, createdAt; unique projectId+fingerprint. Requirement: UUID, assessmentId, controlId, controlSnapshot JSON, applicability; unique assessmentId+controlId. AuditEvent: UUID, actorId, action, targetId, requestId, createdAt. IDs referenciados usam FK; não cascatar exclusão de avaliações. Sem rota delete nesta entrega.
+- [x] **Step 2 — Configurar scripts e rodar a falha.** API usa `tsx src/main.ts` em dev, tsc para build, `vitest run` para testes, `prisma generate` e `prisma migrate deploy` para banco. Instalar Nest11, reflect-metadata, rxjs, cookie-parser, helmet, Zod, pg e adapter/client Prisma7; pares Prisma têm patch exato igual. Dev deps: tsx, vitest, supertest e tipos. Teste inicial falha por módulo ausente.
+- [x] **Step 3 — Criar schema.** User: UUID, email único normalizado, passwordHash, createdAt. Session: UUID, userId, tokenHash único, csrfHash, expiresAt, revokedAt. Application: UUID, name, description, createdAt. Project: UUID, applicationId, name, description, owner, domains JSON, revision default 0. SurveyDraft: projectId único, questionnaireVersion, answers JSON, needsConfirmationIds JSON, revision default 0. Assessment: UUID, projectId, fingerprint, context JSON, catalogSnapshot JSON, decisions JSON, createdAt; unique projectId+fingerprint. Requirement: UUID, assessmentId, controlId, controlSnapshot JSON, applicability; unique assessmentId+controlId. AuditEvent: UUID, actorId, action, targetId, requestId, createdAt. IDs referenciados usam FK; não cascatar exclusão de avaliações. Sem rota delete nesta entrega.
 
 Configuração Prisma7:
 
@@ -285,7 +287,7 @@ const client=new PrismaClient({adapter});
 Generator: provider prisma-client, output ../src/generated/prisma, moduleFormat esm. DatabaseService usa o mesmo adapter no super; connect/disconnect no ciclo de vida Nest. Config é validada ao iniciar, antes de construir client.
 
 Compose opcional: postgres:17, porta 127.0.0.1:5432:5432, volume próprio forge_sbd_pg, POSTGRES_PASSWORD obrigatório via env. .env.example deixa senha vazia com comentário de configuração; .env ignorado. Banco de teste distinto. Não usar `migrate reset` em banco existente.
-- [ ] **Step 4 — Migrar em banco dedicado e testar.** `npm run db:generate -w @forge-sbd/api`, criar migration inicial no banco local vazio e executar migrate deploy no banco de teste; `npm run test:integration -w @forge-sbd/api -- test/database.integration.test.ts`. Commit: `feat: add local postgres persistence and api bootstrap`.
+- [x] **Step 4 — Migrar em banco dedicado e testar.** `npm run db:generate -w @forge-sbd/api`, criar migration inicial no banco local vazio e executar migrate deploy no banco de teste; `npm run test:integration -w @forge-sbd/api -- test/database.integration.test.ts`. Commit: `feat: add local postgres persistence and api bootstrap`.
 
 ## Task 4: Login, sessão e proteção das mutações
 
