@@ -27,6 +27,8 @@
     "vitest": "4.1.11"
   },
   "dependencies": {
+    "@forge-sbd/contracts": "0.1.0",
+    "@forge-sbd/rules": "0.1.0",
     "@nestjs/common": "11.2.5",
     "@nestjs/core": "11.2.5",
     "@nestjs/platform-express": "11.2.5",

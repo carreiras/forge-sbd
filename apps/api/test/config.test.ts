@@ -1,3 +1,5 @@
+import { isAbsolute, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { readConfig } from '../src/config.js';
 import { validateTestDatabaseUrl } from './test-database.js';
@@ -14,8 +16,19 @@ describe('configuração validada antes da conexão', () => {
     expect(() => readConfig({ ...valid, API_PORT: '65536' })).toThrow('API_PORT');
     expect(() => readConfig({ ...valid, WEB_ORIGIN: 'http://localhost:5173/path' })).toThrow('WEB_ORIGIN');
     expect(() => readConfig({ ...valid, WEB_ORIGIN: 'http://user:secret@localhost:5173' })).toThrow('WEB_ORIGIN');
+    expect(() => readConfig({ ...valid, CONTENT_DIRECTORY: '   ' })).toThrow('CONTENT_DIRECTORY');
     try { readConfig({ ...valid, DATABASE_URL: 'bad-secret' }); }
     catch (error) { expect(String(error)).not.toContain('bad-secret'); }
+  });
+});
+
+describe('diretório de conteúdo versionado', () => {
+  it('usa a pasta content do repositório por padrão e resolve caminhos configurados como absolutos', () => {
+    const repositoryContent = fileURLToPath(new URL('../../../content', import.meta.url));
+    expect(readConfig(valid).contentDirectory).toBe(repositoryContent);
+    const configured = readConfig({ ...valid, CONTENT_DIRECTORY: join('relativo', 'content') }).contentDirectory;
+    expect(isAbsolute(configured)).toBe(true);
+    expect(configured).toBe(resolve('relativo', 'content'));
   });
 });
 

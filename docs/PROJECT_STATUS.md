@@ -1,6 +1,6 @@
 # ForgeSBD — estado do projeto
 
-Atualizado em 22/09/2026.
+Atualizado em 08/10/2026.
 
 ## Objetivo permanente
 
@@ -8,7 +8,7 @@ Solução própria com equivalência funcional ao SD Elements para estabelecer S
 
 ## Execução autorizada
 
-Desenho e plano F1 aprovados; execução tarefa por tarefa. Repositório: C:\projetos\apps\forge-sbd; remoto https://github.com/carreiras/forge-sbd.git. Fundação integrada em b7520ee (PR #1) e tarefa 3 integrada em 6051647 (PR #2). Tarefa 4 implementada na branch local feat/admin-auth, no checkout original solicitado. API e frontend são locais; Docker somente para PostgreSQL.
+Desenho e plano F1 aprovados; execução tarefa por tarefa. Repositório: C:\projetos\apps\forge-sbd; remoto https://github.com/carreiras/forge-sbd.git. Fundação integrada em b7520ee (PR #1) e tarefa 3 integrada em 6051647 (PR #2). Tarefa 4 integrada em a6da7e3 (PR #3). Tarefa 5 implementada na branch local feat/portfolio-survey, no checkout original. API e frontend são locais; Docker somente para PostgreSQL.
 
 ## Progresso verificado
 
@@ -33,11 +33,19 @@ Desenho e plano F1 aprovados; execução tarefa por tarefa. Repositório: C:\pro
 - Verificação final: 61 testes passaram (25 API/configuração e 36 motor); typecheck e build completos passaram. Doze blocos HTTP passaram em dois processos reais (compilado e tsx), totalizando 24 requisições. Bootstrap e geração de credenciais testados em terminal real sem eco de senha. Somente dados fictícios no banco _test; arquivo local temporário removido.
 - Revisão independente apontou dois problemas no fluxo REST Client; ambos corrigidos e verificados. Núcleo de autenticação sem defeito confirmado na revisão. Não houve mudança de dependências ou schema nesta tarefa.
 
+## Tarefa 5 — portfólio e rascunho validados em 08/10/2026
+
+- Rotas autenticadas de aplicações, projetos, questionário atual e rascunho, com payloads estritos, UUID, paginação limit/offset (máximo 100) e auditoria na mesma transação.
+- Rascunho criado com o projeto; PATCH com revisão otimista (409 REVISION_CONFLICT), mescla de chaves e pendências de confirmação para perguntas reativadas por domínio ou resposta.
+- Migration aditiva 20261008000000_listing_order (Project.createdAt e índices) aplicada aos bancos _test e principal, sem reset.
+- Verificação: 70 testes passaram (34 API/configuração e 36 motor), typecheck e build. portfolio.http (21 requisições) executado contra API compilada e tsx no banco _test; auth/health/errors repetidos sem falhas. Detalhes em docs/task-5-execution.md.
+- npm audit acusa 1 vulnerabilidade alta pré-existente em source-map-js (somente desenvolvimento); correção pendente, fora do escopo desta tarefa.
+
 ## Próximo trabalho
 
-Tarefa 5 do plano: cadastro de aplicações/projetos e rascunho do questionário com revisão otimista, validação, auditoria transacional e exemplos REST Client. Depois, tarefa 6 (avaliações imutáveis), frontend e aceite integrado.
+Tarefa 6 do plano: geração e histórico imutável de avaliações, com deduplicação por fingerprint, concorrência e exemplos REST Client. Depois, tarefa 7 (frontend) e 8 (aceite integrado).
 
-API de autenticação disponível; endpoints de portfólio/avaliações, frontend utilizável e integração Jira ainda não estão implementados. F1 continua incompleta. F2 amplia conteúdo real e editor; F3 implementa Jira obrigatório antes do piloto útil.
+API de autenticação, portfólio e rascunho disponível; endpoints de avaliações, frontend utilizável e integração Jira ainda não estão implementados. F1 continua incompleta. F2 amplia conteúdo real e editor; F3 implementa Jira obrigatório antes do piloto útil.
 
 ## Pendências
 
@@ -46,6 +54,7 @@ API de autenticação disponível; endpoints de portfólio/avaliações, fronten
 - 120 perguntas são inventário candidato, não catálogo implementado.
 - 42 capacidades são critérios de equivalência, não funcionalidades entregues.
 - Esta tarefa não fez push, merge, implantação ou criação de cards Jira.
+- Corrigir o advisory de source-map-js (dependência transitiva de desenvolvimento) em mudança própria do lockfile.
 
 ## Ordem de leitura
 

@@ -24,6 +24,8 @@ A versão instalada do REST Client (0.25.1) não oculta os prompts de senha da e
 
 O bloco de credenciais inválidas usa email fictício. Cinco falhas desse IP+email em quinze minutos fazem a próxima tentativa retornar 429; aguarde a janela para repetir. Não é necessário provocar bloqueio da sua conta real para testar a autenticação. Expiração e limites temporais têm testes automatizados com relógio controlado.
 
-Saúde/erros não alteram dados; os exemplos de autenticação criam/revogam sessões. Cadastro de aplicações e avaliações serão adicionados quando implementados. Os arquivos `.http` complementam `npm test`, que valida persistência e demais contratos no banco dedicado.
+- `portfolio.http`: executar os blocos 1–20 em ordem. Faz login próprio, cria aplicação e projeto fictícios, lista com paginação, consulta o questionário, salva/retoma o rascunho, demonstra os conflitos 409 de revisão, a pendência de confirmação ao reativar o domínio api e erros 400/403/404/422. IDs, revisões e token CSRF vêm das respostas nomeadas do próprio arquivo; para repetir, recomece do bloco 1 (cada repetição cria nova aplicação, pois não há exclusão nesta entrega).
+
+Saúde/erros não alteram dados; os exemplos de autenticação criam/revogam sessões; `portfolio.http` cria e altera dados fictícios, identificados nos comentários de cada bloco. Avaliações serão adicionadas quando implementadas. Os arquivos `.http` complementam `npm test`, que valida persistência e demais contratos no banco dedicado.
 
 Ao alterar endpoints, atualizar esta pasta na mesma entrega, conforme `AGENTS.md`. Referência da sintaxe de prompts, cookies e encadeamento: [REST Client](https://github.com/Huachao/vscode-restclient#usage).

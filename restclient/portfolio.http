@@ -1,0 +1,184 @@
+@baseUrl = http://127.0.0.1:3000/api/v1
+@origin = http://localhost:5173
+
+# Aplicações, projetos e rascunho do questionário.
+# Ordem: execute os blocos 1–20 em sequência. Os blocos 2, 5, 9, 10 e 14–16 CRIAM OU ALTERAM dados
+# no banco local (aplicação/projeto fictícios e rascunho). Não há rota de exclusão nesta entrega.
+# IDs, revisões e o token CSRF são reaproveitados das respostas nomeadas (@name) deste arquivo;
+# ao repetir o fluxo, execute novamente a partir do bloco 1 para obter valores atuais.
+
+### 1. Login — esperado: 200 com user e csrfToken; cookies reutilizados nos blocos seguintes
+# Antes: npm run restclient:credentials -w @forge-sbd/api (ver restclient/README.md).
+# @name login
+POST {{baseUrl}}/auth/login
+Origin: {{origin}}
+Content-Type: application/json
+Accept: application/json
+
+< ./login.local.json
+
+### 2. Criar aplicação — esperado: 201 com id, name (sem espaços nas pontas), description e createdAt
+# ALTERA DADOS: cria aplicação e evento de auditoria application.create.
+# @name createApplication
+POST {{baseUrl}}/applications
+Origin: {{origin}}
+X-CSRF-Token: {{login.response.body.$.csrfToken}}
+Content-Type: application/json
+Accept: application/json
+
+{"name":"  Aplicação fictícia  ","description":"Exemplo do REST Client"}
+
+### 3. Listar aplicações — esperado: 200 com {items:[...], nextOffset}
+# Ordem: createdAt e id crescentes. limit 1–100 (padrão 50); nextOffset é null na última página.
+# @name listApplications
+GET {{baseUrl}}/applications?limit=10&offset=0
+Accept: application/json
+
+### 4. Listar com limite inválido — esperado: 400 BAD_REQUEST
+# @name listApplicationsInvalidLimit
+GET {{baseUrl}}/applications?limit=101
+Accept: application/json
+
+### 5. Criar projeto — esperado: 201 com domains ["api","cloud"], revision 0 e createdAt
+# ALTERA DADOS: cria projeto, rascunho vazio (revision 0) e evento project.create.
+# @name createProject
+POST {{baseUrl}}/applications/{{createApplication.response.body.$.id}}/projects
+Origin: {{origin}}
+X-CSRF-Token: {{login.response.body.$.csrfToken}}
+Content-Type: application/json
+Accept: application/json
+
+{"name":"API fictícia","description":"Projeto de exemplo","owner":"Pessoa responsável fictícia","domains":["cloud","api"]}
+
+### 6. Listar projetos da aplicação — esperado: 200 com o projeto criado
+# @name listProjects
+GET {{baseUrl}}/applications/{{createApplication.response.body.$.id}}/projects
+Accept: application/json
+
+### 7. Consultar projeto — esperado: 200 com o mesmo corpo do bloco 5
+# @name getProject
+GET {{baseUrl}}/projects/{{createProject.response.body.$.id}}
+Accept: application/json
+
+### 8. Questionário atual — esperado: 200 com version "survey-1" e 24 perguntas
+# @name currentQuestionnaire
+GET {{baseUrl}}/questionnaires/current
+Accept: application/json
+
+### 9. Salvar rascunho — esperado: 200 com revision 1 e as respostas enviadas
+# ALTERA DADOS: atualiza o rascunho e registra survey.update (respostas não vão para a auditoria).
+# Chaves presentes substituem as guardadas; chaves ausentes permanecem. "unknown" é resposta registrada.
+# @name saveDraft
+PATCH {{baseUrl}}/projects/{{createProject.response.body.$.id}}/survey
+Origin: {{origin}}
+X-CSRF-Token: {{login.response.body.$.csrfToken}}
+Content-Type: application/json
+Accept: application/json
+
+{"revision":0,"answers":{"q01":{"state":"known","value":"dev"},"q14":{"state":"known","value":true},"q19":{"state":"known","value":true},"q20":{"state":"unknown"}},"confirmedIds":[]}
+
+### 10. Alterar domínios do projeto — esperado: 200 com domains ["cloud"] e revision 1
+# ALTERA DADOS: q14 (API) fica inativa, mas sua resposta continua guardada; o rascunho avança de revisão.
+# @name updateProject
+PATCH {{baseUrl}}/projects/{{createProject.response.body.$.id}}
+Origin: {{origin}}
+X-CSRF-Token: {{login.response.body.$.csrfToken}}
+Content-Type: application/json
+Accept: application/json
+
+{"revision":0,"name":"API fictícia","description":"Projeto de exemplo","owner":"Pessoa responsável fictícia","domains":["cloud"]}
+
+### 11. Atualizar projeto com revisão antiga — esperado: 409 REVISION_CONFLICT
+# Mensagem: "O projeto foi alterado. Recarregue antes de salvar." Nada é alterado.
+# @name updateProjectConflict
+PATCH {{baseUrl}}/projects/{{createProject.response.body.$.id}}
+Origin: {{origin}}
+X-CSRF-Token: {{login.response.body.$.csrfToken}}
+Content-Type: application/json
+Accept: application/json
+
+{"revision":0,"name":"API fictícia","description":"","owner":"Pessoa responsável fictícia","domains":["api"]}
+
+### 12. Salvar rascunho com revisão antiga — esperado: 409 REVISION_CONFLICT
+# Mensagem: "O questionário foi alterado. Recarregue antes de salvar." Nada é alterado.
+# @name saveDraftConflict
+PATCH {{baseUrl}}/projects/{{createProject.response.body.$.id}}/survey
+Origin: {{origin}}
+X-CSRF-Token: {{login.response.body.$.csrfToken}}
+Content-Type: application/json
+Accept: application/json
+
+{"revision":0,"answers":{},"confirmedIds":[]}
+
+### 13. Retomar rascunho — esperado: 200 com revision 2, respostas do bloco 9 e needsConfirmationIds []
+# @name getDraft
+GET {{baseUrl}}/projects/{{createProject.response.body.$.id}}/survey
+Accept: application/json
+
+### 14. Reativar domínio api — esperado: 200 com domains ["api","cloud"] e revision 2
+# ALTERA DADOS: q14 volta a ficar ativa com resposta antiga; o rascunho passa a pedir confirmação.
+# @name reactivateApi
+PATCH {{baseUrl}}/projects/{{createProject.response.body.$.id}}
+Origin: {{origin}}
+X-CSRF-Token: {{login.response.body.$.csrfToken}}
+Content-Type: application/json
+Accept: application/json
+
+{"revision":{{updateProject.response.body.$.revision}},"name":"API fictícia","description":"Projeto de exemplo","owner":"Pessoa responsável fictícia","domains":["api","cloud"]}
+
+### 15. Consultar pendência de confirmação — esperado: 200 com revision 3 e needsConfirmationIds ["q14"]
+# Enquanto não confirmada, q14 não entra nos fatos da avaliação.
+# @name draftNeedsConfirmation
+GET {{baseUrl}}/projects/{{createProject.response.body.$.id}}/survey
+Accept: application/json
+
+### 16. Confirmar resposta reativada — esperado: 200 com revision 4 e needsConfirmationIds []
+# ALTERA DADOS: confirma o valor guardado de q14 sem reenviá-lo.
+# @name confirmDraft
+PATCH {{baseUrl}}/projects/{{createProject.response.body.$.id}}/survey
+Origin: {{origin}}
+X-CSRF-Token: {{login.response.body.$.csrfToken}}
+Content-Type: application/json
+Accept: application/json
+
+{"revision":{{draftNeedsConfirmation.response.body.$.revision}},"answers":{},"confirmedIds":["q14"]}
+
+### 17. Opção não declarada — esperado: 422 UNPROCESSABLE_ENTITY; rascunho inalterado
+# @name invalidOption
+PATCH {{baseUrl}}/projects/{{createProject.response.body.$.id}}/survey
+Origin: {{origin}}
+X-CSRF-Token: {{login.response.body.$.csrfToken}}
+Content-Type: application/json
+Accept: application/json
+
+{"revision":{{confirmDraft.response.body.$.revision}},"answers":{"q01":{"state":"known","value":"qa"}},"confirmedIds":[]}
+
+### 18. Domínio desconhecido e campo extra — esperado: 400 BAD_REQUEST; nada é criado
+# @name invalidProject
+POST {{baseUrl}}/applications/{{createApplication.response.body.$.id}}/projects
+Origin: {{origin}}
+X-CSRF-Token: {{login.response.body.$.csrfToken}}
+Content-Type: application/json
+Accept: application/json
+
+{"name":"Inválido","description":"","owner":"Pessoa fictícia","domains":["desktop"],"extra":true}
+
+### 19. Identificador inválido e inexistente — esperado: 400 e depois 404
+# @name invalidId
+GET {{baseUrl}}/projects/nao-e-uuid
+Accept: application/json
+
+###
+# @name missingProject
+GET {{baseUrl}}/projects/3f9b6c1e-2d4a-4e8b-9c7d-1a2b3c4d5e6f
+Accept: application/json
+
+### 20. Criar aplicação sem CSRF — esperado: 403 FORBIDDEN; nada é criado
+# Sem sessão (antes do login ou após o logout de auth.http), as rotas deste arquivo retornam 401.
+# @name createWithoutCsrf
+POST {{baseUrl}}/applications
+Origin: {{origin}}
+Content-Type: application/json
+Accept: application/json
+
+{"name":"Sem CSRF","description":""}

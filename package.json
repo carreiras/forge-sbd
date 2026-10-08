@@ -10,8 +10,11 @@
     "node": ">=24.21.0 <25"
   },
   "scripts": {
-    "build": "npm run build -w @forge-sbd/contracts && npm run build -w @forge-sbd/rules && npm run build -w @forge-sbd/api",
+    "build": "npm run build:packages && npm run build -w @forge-sbd/api",
+    "build:packages": "npm run build -w @forge-sbd/contracts && npm run build -w @forge-sbd/rules",
+    "pretypecheck": "npm run build:packages",
     "typecheck": "npm run typecheck --workspaces --if-present",
+    "pretest": "npm run build:packages",
     "test": "npm run test --workspaces --if-present",
     "dev:api": "npm run dev -w @forge-sbd/api",
     "db:generate": "npm run db:generate -w @forge-sbd/api",

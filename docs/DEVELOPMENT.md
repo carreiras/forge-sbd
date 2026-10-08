@@ -34,7 +34,9 @@ npm run build
 npm run start -w @forge-sbd/api
 ```
 
-A API escuta somente em `127.0.0.1`, na porta `API_PORT` (3000 por padrão). `createApp()` monta e inicializa a aplicação sem abrir porta; `main.ts` faz listen e configura encerramento. Saúde e login são públicos; consulta de sessão e logout exigem autenticação. Portfólio, avaliações e frontend utilizável entram nas tarefas seguintes.
+A API escuta somente em `127.0.0.1`, na porta `API_PORT` (3000 por padrão). `createApp()` monta e inicializa a aplicação sem abrir porta; `main.ts` faz listen e configura encerramento. Saúde e login são públicos; as demais rotas exigem autenticação. Avaliações e frontend utilizável entram nas tarefas seguintes.
+
+O questionário `survey-1.json` é lido e validado na inicialização a partir de `CONTENT_DIRECTORY` (opcional; padrão: pasta `content` da raiz; caminhos relativos são resolvidos para absolutos a partir do diretório de execução). Conteúdo inválido impede a API de iniciar.
 
 Erros HTTP têm `{code,message,requestId}` e o header `X-Request-Id`; mensagens não expõem detalhes do banco. O corpo JSON está limitado a 128 KB, Helmet está ativo e o parser de cookies é usado pelas sessões da tarefa 4. O frontend futuro usará proxy `/api` e `WEB_ORIGIN=http://localhost:5173`.
 
@@ -47,9 +49,9 @@ npm run build
 npm audit
 ```
 
-`npm test` inclui integração real, não ignora testes quando falta banco. Preparar migrations antes de executar. `TEST_DATABASE_URL` deve ser local, ter nome terminado em `_test`, não ter parâmetros e ser distinta do banco principal (inclusive localhost/127.0.0.1/IPv6 e usuários diferentes). **As tabelas desse banco dedicado são limpas antes e depois dos testes.** Um advisory lock serializa os processos de teste para evitar colisão na limpeza. Não apontar para dados que devam ser preservados.
+`npm test` e `npm run typecheck` compilam antes `@forge-sbd/contracts` e `@forge-sbd/rules` (scripts `pretest`/`pretypecheck`), pois a API consome o `dist` desses pacotes. `npm test` inclui integração real, não ignora testes quando falta banco. Preparar migrations antes de executar (`npm run db:deploy` e `npm run db:deploy:test -w @forge-sbd/api` após atualizar o repositório). `TEST_DATABASE_URL` deve ser local, ter nome terminado em `_test`, não ter parâmetros e ser distinta do banco principal (inclusive localhost/127.0.0.1/IPv6 e usuários diferentes). **As tabelas desse banco dedicado são limpas antes e depois dos testes.** Um advisory lock serializa os processos de teste para evitar colisão na limpeza. Não apontar para dados que devam ser preservados.
 
-A integração verifica saúde, persistência após reconectar, unicidade de avaliações/requisitos, preservação do histórico por FKs restritivas, auditoria transacional e erros HTTP. Os 36 testes do motor continuam no comando raiz.
+A integração verifica saúde, cadastro de aplicações/projetos, rascunho com revisão, conflitos concorrentes, retomada após reiniciar a API no mesmo banco, rollback quando a auditoria falha, persistência após reconectar, unicidade de avaliações/requisitos, preservação do histórico por FKs restritivas, auditoria transacional e erros HTTP. Os 36 testes do motor continuam no comando raiz.
 
 ## Dependências e limites
 
@@ -63,7 +65,7 @@ F1 continua sendo fundação técnica. Conteúdo real e integração Jira valida
 
 Manter `restclient/*.http` atualizado é requisito de desenvolvimento para toda criação, alteração ou remoção de endpoint (instruções permanentes em `AGENTS.md`). Organizar por funcionalidade, incluir exemplos executáveis e os resultados esperados, cobrir sucesso e erros relevantes e usar somente dados fictícios, sem segredos versionados.
 
-Com a API iniciada por `npm run dev:api`, abrir `restclient/health.http`, `restclient/errors.http` ou `restclient/auth.http` e clicar em **Send Request**. Ajustar `@baseUrl` se a porta local mudar. Os cenários de saúde/erros não alteram dados; o arquivo auth cria e revoga sessões. Execute seus blocos em ordem. Conferir as respostas manualmente. Ver `restclient/README.md` para o procedimento completo; `npm test` continua responsável pela verificação automatizada de persistência e demais contratos.
+Com a API iniciada por `npm run dev:api`, abrir `restclient/health.http`, `restclient/errors.http`, `restclient/auth.http` ou `restclient/portfolio.http` e clicar em **Send Request**. Ajustar `@baseUrl` se a porta local mudar. Os cenários de saúde/erros não alteram dados; o arquivo auth cria e revoga sessões; o arquivo portfolio cria aplicação/projeto fictícios e altera seu rascunho. Execute seus blocos em ordem. Conferir as respostas manualmente. Ver `restclient/README.md` para o procedimento completo; `npm test` continua responsável pela verificação automatizada de persistência e demais contratos.
 
 ## Administrador e autenticação
 
@@ -80,6 +82,24 @@ O comando pede email, senha de 12–128 caracteres sem eco e confirmação. Não
 | POST /api/v1/auth/login | Origin igual a WEB_ORIGIN, JSON estrito com email/password; 200 com user/csrfToken e cookies |
 | GET /api/v1/auth/me | Sessão válida e cookie CSRF correspondente; 200 com user/csrfToken sem rotacionar tokens |
 | POST /api/v1/auth/logout | Sessão válida, Origin autorizado e X-CSRF-Token; 204, revogação no banco e remoção dos cookies |
+
+## Portfólio e rascunho do questionário
+
+Todas as rotas exigem sessão; mutações exigem Origin e X-CSRF-Token. IDs são UUID (inválido: 400; inexistente: 404). Payloads são estritos (campo extra: 400). Nomes até 120 caracteres, descrição até 2000 e responsável até 160, com espaços das pontas removidos. Cada mutação grava auditoria na mesma transação, sem respostas ou corpos de requisição.
+
+| Rota | Comportamento |
+|---|---|
+| GET /api/v1/applications | `?limit=1..100` (padrão 50) e `?offset`; `{items,nextOffset}` ordenado por createdAt e id |
+| POST /api/v1/applications | `{name,description}`; 201 |
+| GET /api/v1/applications/:id/projects | Mesma paginação; 404 se a aplicação não existe |
+| POST /api/v1/applications/:id/projects | `{name,description,owner,domains}`; 201 com revision 0 e rascunho vazio criado na mesma transação |
+| GET /api/v1/projects/:id | Projeto |
+| PATCH /api/v1/projects/:id | `{revision,...cadastro}`; revisão antiga: 409 `REVISION_CONFLICT`. Mudança de domínios recalcula pendências de confirmação e avança a revisão do rascunho |
+| GET /api/v1/questionnaires/current | Definição validada `survey-1` |
+| GET /api/v1/projects/:id/survey | `{questionnaireVersion,revision,answers,needsConfirmationIds}` |
+| PATCH /api/v1/projects/:id/survey | `{revision,answers,confirmedIds}`; chaves enviadas substituem as guardadas. Estrutura inválida: 400; pergunta/opção não declarada: 422; revisão antiga: 409 |
+
+Domínios são gravados na ordem canônica e não podem repetir. Uma pergunta que volta a ficar ativa (por domínio ou resposta) com resposta guardada entra em `needsConfirmationIds` e não contribui para os fatos até ser confirmada em `confirmedIds` ou respondida novamente. Respostas de perguntas inativas permanecem no rascunho. Não há exclusão de respostas nesta entrega; use `{"state":"unknown"}` para registrar desconhecimento.
 
 Cookies `forge_session` e `forge_csrf`: HttpOnly, SameSite=Lax, Path=/, duração de oito horas e Secure quando NODE_ENV=production. Não definir NODE_ENV=production para o teste local por HTTP. O banco armazena somente os hashes dos tokens. Senhas usam scrypt assíncrono, sal individual e parâmetros do plano. Respostas de sucesso da autenticação usam Cache-Control: no-store.
 

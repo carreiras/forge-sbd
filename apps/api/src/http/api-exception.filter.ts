@@ -5,6 +5,15 @@ import type { Request, Response } from 'express';
 
 export type ApiRequest = Request & { requestId: string };
 
+// Services may refine a client error with a stable code and a safe Portuguese message.
+function specificError(error: unknown, status: number): [string, string] | undefined {
+  if (!(error instanceof HttpException) || status < 400 || status >= 500) return undefined;
+  const body = error.getResponse();
+  if (typeof body !== 'object' || body === null) return undefined;
+  const { code, message } = body as Record<string, unknown>;
+  return typeof code === 'string' && /^[A-Z][A-Z_]{2,63}$/.test(code) && typeof message === 'string' ? [code, message] : undefined;
+}
+
 @Catch()
 export class ApiExceptionFilter implements ExceptionFilter {
   catch(error: unknown, host: ArgumentsHost): void {
@@ -25,7 +34,7 @@ export class ApiExceptionFilter implements ExceptionFilter {
       422: ['UNPROCESSABLE_ENTITY', 'Dados inválidos para esta operação.'],
       429: ['TOO_MANY_REQUESTS', 'Muitas tentativas. Tente novamente mais tarde.'],
     };
-    const [code, message] = errors[status] ?? ['INTERNAL_ERROR', 'Erro interno.'];
+    const [code, message] = specificError(error, status) ?? errors[status] ?? ['INTERNAL_ERROR', 'Erro interno.'];
     const requestId = request.requestId ?? randomUUID();
     response.setHeader('X-Request-Id', requestId);
     response.status(status).json({ code, message, requestId });

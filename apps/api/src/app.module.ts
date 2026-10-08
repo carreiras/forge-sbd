@@ -5,6 +5,9 @@ import { AuditService } from './audit/audit.service.js';
 import type { ApiConfig } from './config.js';
 import { AuthModule } from './auth/auth.module.js';
 import { Public } from './auth/public.decorator.js';
+import { ContentModule } from './content/content.module.js';
+import { PortfolioModule } from './portfolio/portfolio.module.js';
+import { SurveysModule } from './surveys/surveys.module.js';
 
 @Controller('health')
 class HealthController {
@@ -18,7 +21,7 @@ export class AppModule {
   static register(config: ApiConfig): DynamicModule {
     return {
       module: AppModule,
-      imports: [DatabaseModule.register(config), AuthModule.register(config)],
+      imports: [DatabaseModule.register(config), ContentModule.register(config), AuthModule.register(config), PortfolioModule, SurveysModule],
       controllers: [HealthController],
       providers: [AuditService],
       exports: [DatabaseModule, AuditService],
