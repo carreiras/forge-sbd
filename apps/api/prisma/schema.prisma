@@ -35,6 +35,7 @@ model Application {
   description String @db.VarChar(2000)
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   projects Project[]
+  @@index([createdAt])
 }
 
 model Project {
@@ -46,9 +47,11 @@ model Project {
   owner String @db.VarChar(160)
   domains Json
   revision Int @default(0)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
   surveyDraft SurveyDraft?
   assessments Assessment[]
   @@index([applicationId])
+  @@index([applicationId, createdAt])
 }
 
 model SurveyDraft {

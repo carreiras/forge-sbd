@@ -60,3 +60,17 @@ export type AssessmentDto = {
     verification: 'not_verified';
   }[];
 };
+export type ApplicationInput = {name: string; description: string};
+export type ApplicationDto = ApplicationInput & {id: string; createdAt: string};
+export type ProjectInput = {name: string; description: string; owner: string; domains: Domain[]};
+export type ProjectUpdateInput = ProjectInput & {revision: number};
+export type ProjectDto = ProjectInput & {id: string; applicationId: string; revision: number; createdAt: string};
+export type Page<T> = {items: T[]; nextOffset: number | null};
+export type SurveyDraftDto = {
+  questionnaireVersion: string;
+  revision: number;
+  answers: Answers;
+  needsConfirmationIds: string[];
+};
+// Answers replace only the keys present; confirmedIds accept stored answers of reactivated questions.
+export type SurveyDraftPatch = {revision: number; answers: Answers; confirmedIds: string[]};

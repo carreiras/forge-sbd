@@ -334,13 +334,15 @@ Limitação local: 5 falhas em 15 minutos por IP+email normalizado, hash de emai
 Bootstrap usa stdin/terminal com senha sem eco, confirmado duas vezes. Aborta se admin já existir. Testes usam seedTestAdmin com senha fictícia somente em banco `_test`.
 - [x] **Step 4 — Executar testes e typecheck.** Commit: `feat: add admin sessions and csrf protection`.
 
-## Task 5: Cadastro de portfólio e rascunho com revisão
+## Task 5: Cadastro de portfólio e rascunho com revisão — concluída em 08/10/2026
+
+> Evidências e decisões: `docs/task-5-execution.md`. Rotas e regras de confirmação: `docs/DEVELOPMENT.md`; exemplos: `restclient/portfolio.http`.
 
 **Files:** criar portfolio.module.ts, portfolio.service.ts, portfolio.controller.ts em src/portfolio; surveys.module.ts, surveys.service.ts, surveys.controller.ts em src/surveys; test/portfolio-survey.integration.test.ts. Modificar app.module.ts, contracts e support.
 
 **Interfaces:** endpoints e payloads da especificação. Atualizar projeto exige `{revision,...ProjectInput}`. Todas as mutações auditadas dentro da transação. Carregamento inicial do survey usa catálogo validado da tarefa 2, caminho absoluto derivado de configuração CONTENT_DIRECTORY.
 
-- [ ] **Step 1 — Testar CRUD mínimo, retomada e conflito.**
+- [x] **Step 1 — Testar CRUD mínimo, retomada e conflito.**
 
 ```ts
 const appResult=await agent.post('/api/v1/applications')
@@ -359,8 +361,8 @@ expect(resumed.body.answers.q14).toEqual({state:'unknown'});
 ```
 
 Bloco vai dentro de it com startTestApp, seedTestAdmin e login conforme tarefa 4; definir `origin='http://localhost:5173'`. Acrescentar inválidos: UUID incorreto 400, aplicação inexistente 404, domínio desconhecido, respostas com opções inválidas e campos extras 400/422, nome vazio/longos e revisão inexistente 400.
-- [ ] **Step 2 — Rodar integração específica; confirmar falhas das rotas.**
-- [ ] **Step 3 — Implementar services e controllers.** Usar schemas Zod strict para payloads e filtros; trim em nomes/email. PATCH rascunho faz updateMany where projectId+revision com incremento; count=0 retorna 409 e transaction faz rollback. Recalcular visibilidade na alteração de domínios e respostas; perguntas que reaparecem com resposta guardada recebem needsConfirmationIds. Reativação sem confirmação não entra nos fatos. Criar rascunho atomicamente com projeto. Listagens ordenadas por createdAt+id, paginação limit máximo 100.
+- [x] **Step 2 — Rodar integração específica; confirmar falhas das rotas.**
+- [x] **Step 3 — Implementar services e controllers.** Usar schemas Zod strict para payloads e filtros; trim em nomes/email. PATCH rascunho faz updateMany where projectId+revision com incremento; count=0 retorna 409 e transaction faz rollback. Recalcular visibilidade na alteração de domínios e respostas; perguntas que reaparecem com resposta guardada recebem needsConfirmationIds. Reativação sem confirmação não entra nos fatos. Criar rascunho atomicamente com projeto. Listagens ordenadas por createdAt+id, paginação limit máximo 100.
 
 ```ts
 const result=await tx.surveyDraft.updateMany({
@@ -371,7 +373,7 @@ if(result.count!==1) throw new ConflictException({code:'REVISION_CONFLICT',
   message:'O questionário foi alterado. Recarregue antes de salvar.'});
 ```
 
-- [ ] **Step 4 — Testar salvar, encerrar servidor e consultar com outra instância no mesmo banco de teste.** Nunca limpar entre essas duas instâncias. Commit: `feat: add projects and resumable conditional surveys`.
+- [x] **Step 4 — Testar salvar, encerrar servidor e consultar com outra instância no mesmo banco de teste.** Nunca limpar entre essas duas instâncias. Commit: `feat: add projects and resumable conditional surveys`.
 
 ## Task 6: Geração e histórico imutável de avaliações
 

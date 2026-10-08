@@ -15,7 +15,7 @@ async function clean(db: DatabaseService): Promise<void> {
 }
 
 export async function startTestApp(): Promise<{
-  app: INestApplication; db: DatabaseService; close(): Promise<void>;
+  app: INestApplication; db: DatabaseService; close(): Promise<void>; restart(): Promise<void>;
 }> {
   const url = validateTestDatabaseUrl(process.env.TEST_DATABASE_URL, process.env.DATABASE_URL);
   const lock = new pg.Client({ connectionString: url, connectionTimeoutMillis: 5_000, query_timeout: 10_000 });
@@ -31,20 +31,26 @@ export async function startTestApp(): Promise<{
     app = await createApp({ ...process.env, DATABASE_URL: url });
     const db = app.get(DatabaseToken);
     await clean(db);
-    const runningApp = app;
     let closed = false;
-    return {
-      app: runningApp, db,
+    const handle = {
+      app, db,
+      // Simulates a server restart: same database and lock, no cleanup between instances.
+      async restart() {
+        await handle.app.close();
+        handle.app = await createApp({ ...process.env, DATABASE_URL: url });
+        handle.db = handle.app.get(DatabaseToken);
+      },
       async close() {
         if (closed) return;
         closed = true;
-        try { await clean(db); }
+        try { await clean(handle.db); }
         finally {
-          try { await runningApp.close(); }
+          try { await handle.app.close(); }
           finally { await lock.end(); }
         }
       },
     };
+    return handle;
   } catch {
     try { await app?.close(); }
     finally { await lock.end(); }
