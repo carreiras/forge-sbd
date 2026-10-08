@@ -31,3 +31,13 @@ Base: a6da7e3, main com PR #3 integrado. Branch feat/portfolio-survey, checkout 
 - REST Client: `restclient/portfolio.http` com 21 requisições, lido do próprio arquivo e executado contra a API compilada e via tsx, apontada para o banco `_test` com administrador fictício: todos os status esperados. auth/health/errors também repetidos no modo tsx sem falhas. Estado final conferido no banco (revisão, pendências e eventos de auditoria). Banco `_test` limpo e login.local.json temporário removido. A interface gráfica da extensão não foi automatizada.
 - Migration aplicada aos bancos forge_sbd_test e forge_sbd com migrate deploy, sem reset; segunda execução sem pendências.
 - npm audit: 1 vulnerabilidade alta pré-existente em source-map-js 1.2.1 (somente desenvolvimento, via vitest/vite/postcss; GHSA-68fv-2mgg-jv7q). O lockfile desta tarefa só acrescentou os workspaces internos. Não corrigido nesta tarefa; pendência registrada.
+
+## Revisão independente e correções
+
+Revisor sem achados críticos; concorrência sob READ COMMITTED, filtro de erros, caminho padrão do conteúdo e sequência do portfolio.http confirmados.
+
+- Importante, corrigido: confirmedIds enviados no mesmo salvamento que reativava a pergunta, ou o reenvio do mesmo valor junto com a mudança do pai (formulário completo), liberavam a resposta antiga sem confirmação visível. Agora só confirma quem já estava pendente; resposta reenviada só resolve a pendência se o valor mudou ou se a pergunta já estava pendente. Teste novo falhou (`[]` em vez de `['q20']`) e passou após a correção.
+- Comentário do portfolio.http listava um GET entre os blocos que alteram dados; corrigido.
+- Adiados (menores): coerção permissiva de limit/offset (ex.: `1e2`, vazio); código de erro específico identificado por formato e não por classe dedicada; qualquer falha de deriveContext vira 422; ids pendentes de perguntas inativas permanecem na lista (tarefa 7 deve ignorá-los na exibição); CONTENT_DIRECTORY relativo resolve a partir do diretório do processo.
+- Após a correção: npm test 71 testes (35 API/configuração e 36 motor), typecheck, build e git diff --check passaram. portfolio/health/errors/auth executados de novo contra a API compilada no banco _test: 33 requisições sem falhas. A repetição em tsx anterior à correção é a única deste modo; a correção não alterou injeção de dependências.
+- Uma instância tsx do ensaio ficou órfã na porta 3100 após a primeira parada e foi encerrada; a rodada afetada foi descartada e repetida. Banco _test limpo e login.local.json removido.

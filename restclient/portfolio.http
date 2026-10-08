@@ -2,7 +2,7 @@
 @origin = http://localhost:5173
 
 # Aplicações, projetos e rascunho do questionário.
-# Ordem: execute os blocos 1–20 em sequência. Os blocos 2, 5, 9, 10 e 14–16 CRIAM OU ALTERAM dados
+# Ordem: execute os blocos 1–20 em sequência. Os blocos 2, 5, 9, 10, 14 e 16 CRIAM OU ALTERAM dados
 # no banco local (aplicação/projeto fictícios e rascunho). Não há rota de exclusão nesta entrega.
 # IDs, revisões e o token CSRF são reaproveitados das respostas nomeadas (@name) deste arquivo;
 # ao repetir o fluxo, execute novamente a partir do bloco 1 para obter valores atuais.

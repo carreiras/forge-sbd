@@ -38,7 +38,8 @@ Desenho e plano F1 aprovados; execução tarefa por tarefa. Repositório: C:\pro
 - Rotas autenticadas de aplicações, projetos, questionário atual e rascunho, com payloads estritos, UUID, paginação limit/offset (máximo 100) e auditoria na mesma transação.
 - Rascunho criado com o projeto; PATCH com revisão otimista (409 REVISION_CONFLICT), mescla de chaves e pendências de confirmação para perguntas reativadas por domínio ou resposta.
 - Migration aditiva 20261008000000_listing_order (Project.createdAt e índices) aplicada aos bancos _test e principal, sem reset.
-- Verificação: 70 testes passaram (34 API/configuração e 36 motor), typecheck e build. portfolio.http (21 requisições) executado contra API compilada e tsx no banco _test; auth/health/errors repetidos sem falhas. Detalhes em docs/task-5-execution.md.
+- Verificação final: 71 testes passaram (35 API/configuração e 36 motor), typecheck, build e diff check. portfolio.http (21 requisições) executado contra API compilada e tsx no banco _test; após a correção da revisão, portfolio/auth/health/errors repetidos na API compilada (33 requisições) sem falhas. Detalhes em docs/task-5-execution.md.
+- Revisão independente: um achado importante (confirmação antecipada de resposta reativada) corrigido com teste RED→GREEN; cinco menores adiados e registrados no execution log.
 - npm audit acusa 1 vulnerabilidade alta pré-existente em source-map-js (somente desenvolvimento); correção pendente, fora do escopo desta tarefa.
 
 ## Próximo trabalho

@@ -1,6 +1,6 @@
 import { Inject, Injectable, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
 import type { z } from 'zod';
-import type { Answers, Domain, Questionnaire, SurveyDraftDto } from '@forge-sbd/contracts';
+import type { Answer, Answers, Domain, Questionnaire, SurveyDraftDto } from '@forge-sbd/contracts';
 import { AuditService } from '../audit/audit.service.js';
 import { QUESTIONNAIRE } from '../content/content.module.js';
 import { DatabaseService } from '../database/database.service.js';
@@ -14,6 +14,13 @@ function toDraftDto(draft: SurveyDraft): SurveyDraftDto {
     questionnaireVersion: draft.questionnaireVersion, revision: draft.revision,
     answers: draft.answers as Answers, needsConfirmationIds: draft.needsConfirmationIds as string[],
   };
+}
+
+function sameAnswer(stored: Answer | undefined, next: Answer): boolean {
+  if (!stored || stored.state !== next.state) return false;
+  if (stored.state === 'unknown' || next.state === 'unknown') return true;
+  const [a, b] = [stored.value, next.value];
+  return Array.isArray(a) && Array.isArray(b) ? a.length === b.length && a.every((v, i) => v === b[i]) : a === b;
 }
 
 @Injectable()
@@ -45,9 +52,15 @@ export class SurveysService {
       const previous = draft.answers as Answers;
       // Present keys replace stored answers; absent keys keep the stored value.
       const answers: Answers = { ...previous, ...input.answers };
+      const pending = new Set(draft.needsConfirmationIds as string[]);
+      // Only questions the client could see as pending are confirmed; an unchanged answer resent
+      // with a parent change (full-form save) is not a confirmation of a question it never saw.
+      const settledIds = new Set([
+        ...input.confirmedIds.filter(id => pending.has(id)),
+        ...Object.entries(input.answers).filter(([id, answer]) => pending.has(id) || !sameAnswer(previous[id], answer)).map(([id]) => id),
+      ]);
       const needsConfirmationIds = resolveConfirmations(this.survey,
-        { domains, answers: previous, needsConfirmationIds: draft.needsConfirmationIds as string[] },
-        { domains, answers, settledIds: new Set([...Object.keys(input.answers), ...input.confirmedIds]) });
+        { domains, answers: previous, needsConfirmationIds: [...pending] }, { domains, answers, settledIds });
       const result = await tx.surveyDraft.updateMany({
         where: { projectId, revision: input.revision },
         data: { answers, needsConfirmationIds, revision: { increment: 1 } },

@@ -99,7 +99,7 @@ Todas as rotas exigem sessão; mutações exigem Origin e X-CSRF-Token. IDs são
 | GET /api/v1/projects/:id/survey | `{questionnaireVersion,revision,answers,needsConfirmationIds}` |
 | PATCH /api/v1/projects/:id/survey | `{revision,answers,confirmedIds}`; chaves enviadas substituem as guardadas. Estrutura inválida: 400; pergunta/opção não declarada: 422; revisão antiga: 409 |
 
-Domínios são gravados na ordem canônica e não podem repetir. Uma pergunta que volta a ficar ativa (por domínio ou resposta) com resposta guardada entra em `needsConfirmationIds` e não contribui para os fatos até ser confirmada em `confirmedIds` ou respondida novamente. Respostas de perguntas inativas permanecem no rascunho. Não há exclusão de respostas nesta entrega; use `{"state":"unknown"}` para registrar desconhecimento.
+Domínios são gravados na ordem canônica e não podem repetir. Uma pergunta que volta a ficar ativa (por domínio ou resposta) com resposta guardada entra em `needsConfirmationIds` e não contribui para os fatos até ser confirmada em `confirmedIds` (somente ids já pendentes) ou respondida novamente; reenviar o mesmo valor no salvamento que a reativa não conta como confirmação. Respostas de perguntas inativas permanecem no rascunho. Não há exclusão de respostas nesta entrega; use `{"state":"unknown"}` para registrar desconhecimento.
 
 Cookies `forge_session` e `forge_csrf`: HttpOnly, SameSite=Lax, Path=/, duração de oito horas e Secure quando NODE_ENV=production. Não definir NODE_ENV=production para o teste local por HTTP. O banco armazena somente os hashes dos tokens. Senhas usam scrypt assíncrono, sal individual e parâmetros do plano. Respostas de sucesso da autenticação usam Cache-Control: no-store.
 

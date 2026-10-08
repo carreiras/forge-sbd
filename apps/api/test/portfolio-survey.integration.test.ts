@@ -123,6 +123,32 @@ describe('portfólio e rascunho do questionário', () => {
     } finally { await test.close(); }
   });
 
+  it('não aceita confirmação antecipada nem reenvio igual de resposta reativada no mesmo salvamento', async () => {
+    const test = await startTestApp();
+    try {
+      const { send } = await login(test);
+      const { project } = await createProject(send, ['infra']);
+      const route = `/api/v1/projects/${project.id}/survey`;
+      const yes = { state: 'known', value: true };
+      const no = { state: 'known', value: false };
+      await send('patch', route, { revision: 0, answers: { q19: yes, q20: yes }, confirmedIds: [] }).expect(200);
+      await send('patch', route, { revision: 1, answers: { q19: no }, confirmedIds: [] }).expect(200);
+      // q20 is hidden until this request; the client cannot have confirmed its old value.
+      let draft = (await send('patch', route, { revision: 2, answers: { q19: yes }, confirmedIds: ['q20'] }).expect(200)).body;
+      expect(draft.needsConfirmationIds).toEqual(['q20']);
+      draft = (await send('patch', route, { revision: 3, answers: {}, confirmedIds: ['q20'] }).expect(200)).body;
+      expect(draft.needsConfirmationIds).toEqual([]);
+      await send('patch', route, { revision: 4, answers: { q19: no }, confirmedIds: [] }).expect(200);
+      // Resending the stored value together with the parent (full-form save) is not a confirmation.
+      draft = (await send('patch', route, { revision: 5, answers: { q19: yes, q20: yes }, confirmedIds: [] }).expect(200)).body;
+      expect(draft.needsConfirmationIds).toEqual(['q20']);
+      // A different value is a new answer, not the old one, so it needs no confirmation.
+      await send('patch', route, { revision: 6, answers: { q19: no }, confirmedIds: ['q20'] }).expect(200);
+      draft = (await send('patch', route, { revision: 7, answers: { q19: yes, q20: no }, confirmedIds: [] }).expect(200)).body;
+      expect(draft.needsConfirmationIds).toEqual([]);
+    } finally { await test.close(); }
+  });
+
   it('lista aplicações com paginação e expõe o questionário atual', async () => {
     const test = await startTestApp();
     try {
