@@ -54,7 +54,7 @@ API de autenticação, portfólio e rascunho disponível; endpoints de avaliaç�
 - Tecnologias reais da VOLL e políticas internas ainda não informadas.
 - 120 perguntas são inventário candidato, não catálogo implementado.
 - 42 capacidades são critérios de equivalência, não funcionalidades entregues.
-- Esta tarefa não fez push, merge, implantação ou criação de cards Jira.
+- Tarefa 5: branch feat/portfolio-survey enviada ao remoto em 08/10/2026 a pedido do usuário para abertura de PR; merge pendente. Sem implantação ou criação de cards Jira.
 - Corrigir o advisory de source-map-js (dependência transitiva de desenvolvimento) em mudança própria do lockfile.
 
 ## Ordem de leitura
